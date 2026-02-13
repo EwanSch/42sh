@@ -10,9 +10,13 @@
 #ifndef MINISHELL1_H
     #define MINISHELL1_H
 
+    #define MYSH_OLDPWD_ENV "42SH_OLDPWD"
+    #define MYSH_HOME_ENV "HOME"
+
     #include "my.h"
     #include "linked_list.h"
     #include "my_printf.h"
+    #include <termios.h>
 
 typedef struct ms_shell_context_s ms_shell_context_t;
 typedef struct ms_env_entry_s ms_env_entry_t;
@@ -62,5 +66,8 @@ int run_cd(char **args, ms_shell_context_t *context);
 int run_exit(char **args, ms_shell_context_t *context);
 int run_other(char **args, ms_shell_context_t *context);
 
+// Reading utils
+void enable_raw_mode(struct termios *orig_termios);
+void disable_raw_mode(struct termios *orig_termios);
 
 #endif

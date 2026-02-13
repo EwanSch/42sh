@@ -78,18 +78,19 @@ int run_cd(char **args, ms_shell_context_t *context)
 
     if (!expr || strlen(expr) == 0) {
         free(expr);
-        expr = my_strdup(ms_get_env_value("HOME", context));
+        expr = my_strdup(ms_get_env_value(MYSH_HOME_ENV, context));
     }
     if (!my_strcmp("-", expr)) {
         free(expr);
-        expr = my_strdup(ms_get_env_value("OLDPWD", context));
+        expr = my_strdup(ms_get_env_value(MYSH_OLDPWD_ENV, context));
     }
     cwd_buffer = getcwd(NULL, 0);
-    ms_set_env_value("OLDPWD", cwd_buffer, context);
-    free(cwd_buffer);
     status = chdir(expr);
     if (status != 0)
         my_dprintf(2, "%s: %s\n", expr, strerror(errno));
+    else
+        ms_set_env_value(MYSH_OLDPWD_ENV, cwd_buffer, context);
+    free(cwd_buffer);
     free(expr);
     return status;
 }

@@ -10,7 +10,8 @@
 
 NAME = mysh
 SRC_FILENAMES = main.c ms_explode.c ms_utils.c ms_path_explorer.c \
-	ms_env_manager.c ms_env_commands.c ms_dir_commands.c
+	ms_env_manager.c ms_env_commands.c ms_dir_commands.c \
+	ms_input_reader.c
 HEADERS = linked_list.h my.h my_printf.h minishell1.h
 
 
@@ -29,7 +30,7 @@ LIBMY_DIR = $(LIBS_DIR)/mylite
 LIBMY_MAKE = $(MAKE) -C $(LIBMY_DIR)
 LIBMY_BIN = libmy.a
 
-CFLAGS += -I$(HEADERS_DIR)
+CFLAGS += -g -I$(HEADERS_DIR)
 LINKER_FLAGS += -Llib -lmy
 
 codingstyle: CC = epiclang
