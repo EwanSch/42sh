@@ -34,19 +34,19 @@ static void signal_error_message(int signal)
 
     switch (sigcode) {
         case SIGSEGV:
-            my_fputs(2, "Segmentation fault");
+            my_fputs(2, MYSH_MSG_SEGFAULT);
             break;
         case SIGFPE:
-            my_fputs(2, "Floating point exception");
+            my_fputs(2, MYSH_MSG_FLTPTEXCEP);
             break;
         case SIGABRT:
-            my_fputs(2, "Aborted");
+            my_fputs(2, MYSH_MSG_ABORTED);
             break;
         default:
-            my_dprintf(2, "Process terminated by signal %d", sigcode);
+            my_dprintf(2, MYSH_MSG_SIGOTHER, sigcode);
     }
     if (coredumped)
-        my_fputs(2, " (core dumped)");
+        my_fputs(2, MYSH_MSG_COREDUMP);
     my_fputs(2, "\n");
 }
 
@@ -84,7 +84,7 @@ int run_exit(char **args, ms_shell_context_t *context)
     } else {
         if (!my_str_isnumerical(expr)) {
             free(expr);
-            my_dprintf(2, "exit: Expression Syntax.\n");
+            my_fputs(2, "exit: Expression Syntax.\n");
             return 1;
         }
         status = my_getnbr(expr);
@@ -95,34 +95,38 @@ int run_exit(char **args, ms_shell_context_t *context)
     exit(status);
 }
 
-int run_cd(char **args, ms_shell_context_t *context)
+static char *cd_destination(char **args, ms_shell_context_t *context)
 {
     char *expr = my_join(" ", args + 1);
-    int status = 0;
-    char *cwd_buffer;
 
     if (!expr || strlen(expr) == 0) {
         free(expr);
-        expr = my_strdup(ms_get_env_value(MYSH_HOME_ENV, context));
+        return my_strdup(ms_get_env_value(MYSH_HOME_ENV, context));
     }
     if (!my_strcmp("-", expr)) {
         free(expr);
-        if (context->last_working_dir == NULL)
+        expr = my_strdup(context->last_working_dir);
+        if (!expr)
             expr = my_strdup("");
-        else
-            expr = my_strdup(context->last_working_dir);
-        // expr = my_strdup(ms_get_env_value("OLDPWD", context));
+        return expr;
     }
-    cwd_buffer = getcwd(NULL, 0);
-    if (context->last_working_dir != NULL)
-        free(context->last_working_dir);
+    return expr;
+}
+
+int run_cd(char **args, ms_shell_context_t *context)
+{
+    char *expr = cd_destination(args, context);
+    int status = 0;
+    char *cwd_buffer = getcwd(NULL, 0);
+
+    safe_free(&context->last_working_dir);
     context->last_working_dir = cwd_buffer;
     status = chdir(expr);
     if (status != 0)
         my_dprintf(2, "%s: %s.\n", expr, strerror(errno));
     cwd_buffer = getcwd(NULL, 0);
-    ms_set_env_value("PWD", cwd_buffer, context);
-    free(cwd_buffer);
-    free(expr);
+    ms_set_env_value(MYSH_CWD_ENV, cwd_buffer, context);
+    safe_free(&cwd_buffer);
+    safe_free(&expr);
     return status;
 }

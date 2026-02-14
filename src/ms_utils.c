@@ -11,17 +11,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-void *my_calloc(size_t count, size_t unit_size)
-{
-    void *ptr = malloc(count * unit_size);
-
-    if (!ptr)
-        return NULL;
-    for (size_t i = 0; i < count * unit_size; i++)
-        ((char *) ptr)[i] = 0;
-    return ptr;
-}
-
 int my_str_isnumerical(char const *str)
 {
     if (!str)

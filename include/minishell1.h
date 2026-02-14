@@ -15,6 +15,15 @@
     #include <termios.h>
     #include "benjalib.h"
 
+    #define MYSH_HOME_ENV "HOME"
+    #define MYSH_CWD_ENV "PWD"
+
+    #define MYSH_MSG_ABORTED "Aborted"
+    #define MYSH_MSG_SEGFAULT "Segmentation fault"
+    #define MYSH_MSG_FLTPTEXCEP "Floating point exception"
+    #define MYSH_MSG_SIGOTHER "Process terminated by signal %d"
+    #define MYSH_MSG_COREDUMP " (core dumped)"
+
 typedef struct ms_shell_context_s ms_shell_context_t;
 typedef struct ms_env_entry_s ms_env_entry_t;
 
@@ -44,7 +53,6 @@ char *my_join(char const *separator, char **str_arr);
 int count_words(char const *str, char const *separator);
 
 // Miscellaneous Utils
-void *my_calloc(size_t count, size_t unit_size);
 int my_str_isnumerical(char const *str);
 
 // Env utils
