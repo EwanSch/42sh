@@ -12,7 +12,7 @@ NAME = mysh
 SRC_FILENAMES = main.c ms_explode.c ms_utils.c ms_path_explorer.c \
 	ms_env_manager.c ms_env_commands.c ms_dir_commands.c \
 	ms_input_reader.c
-HEADERS = linked_list.h my.h my_printf.h minishell1.h
+HEADERS = minishell1.h benjalib.h
 
 
 SRC_DIR = src
@@ -26,12 +26,12 @@ OBJ_FILES = $(SRC_FILENAMES:%.c=$(OBJ_DIR)/%.o)
 BIN_FILE = $(BIN_DIR)/$(NAME)
 HEADER_FILES = $(HEADERS:%=$(HEADERS_DIR)/%)
 
-LIBMY_DIR = $(LIBS_DIR)/mylite
+LIBMY_DIR = $(LIBS_DIR)/benjalib
 LIBMY_MAKE = $(MAKE) -C $(LIBMY_DIR)
-LIBMY_BIN = libmy.a
+LIBMY_BIN = libbenja.a
 
-CFLAGS += -g -I$(HEADERS_DIR)
-LINKER_FLAGS += -Llib -lmy
+CFLAGS += -I$(HEADERS_DIR)
+LINKER_FLAGS += -Llib -lbenja
 
 codingstyle: CC = epiclang
 
@@ -52,7 +52,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADER_FILES) | $(OBJ_DIR)
 
 $(LIBS_DIR)/$(LIBMY_BIN):
 	$(LIBMY_MAKE) all
-	cp $(LIBMY_DIR)/bin/$(LIBMY_BIN) $(LIBS_DIR)/
+	cp $(LIBMY_DIR)/$(LIBMY_BIN) $(LIBS_DIR)/
 
 $(OBJ_DIR) $(BIN_DIR):
 	mkdir -p $@

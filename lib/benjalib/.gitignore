@@ -7,5 +7,4 @@ bin
 *.gcov.json.gz
 *.profraw
 .idea
-minishell1
-mysh
+libtest

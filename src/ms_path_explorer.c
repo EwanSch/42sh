@@ -21,6 +21,8 @@ int is_file_in_dir(char *dir, char *search)
     struct dirent *dp;
     int found = 0;
 
+    if (!dirp)
+        return 0;
     while (1) {
         dp = readdir(dirp);
         if (!dp)

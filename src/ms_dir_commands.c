@@ -23,8 +23,31 @@ static void fork_callback(char *exec, char **args, char **env)
 {
     args[0] = exec;
     execve(args[0], args, env);
-    my_dprintf(2, "%s: %s\n", args[0], strerror(errno));
+    my_dprintf(2, "%s: %s.\n", args[0], strerror(errno));
     exit(1);
+}
+
+static void signal_error_message(int signal)
+{
+    char coredumped = WCOREDUMP(signal);
+    int sigcode = WTERMSIG(signal);
+
+    switch (sigcode) {
+        case SIGSEGV:
+            my_fputs(2, "Segmentation fault");
+            break;
+        case SIGFPE:
+            my_fputs(2, "Floating point exception");
+            break;
+        case SIGABRT:
+            my_fputs(2, "Aborted");
+            break;
+        default:
+            my_dprintf(2, "Process terminated by signal %d", sigcode);
+    }
+    if (coredumped)
+        my_fputs(2, " (core dumped)");
+    my_fputs(2, "\n");
 }
 
 int run_other(char **args, ms_shell_context_t *context)
@@ -46,6 +69,8 @@ int run_other(char **args, ms_shell_context_t *context)
         fork_callback(full_path, args, env_dump);
     waitpid(npid, &status, 0);
     free_str_arr(env_dump);
+    if (WIFSIGNALED(status))
+        signal_error_message(status);
     return status;
 }
 
@@ -82,14 +107,21 @@ int run_cd(char **args, ms_shell_context_t *context)
     }
     if (!my_strcmp("-", expr)) {
         free(expr);
-        expr = my_strdup(ms_get_env_value(MYSH_OLDPWD_ENV, context));
+        if (context->last_working_dir == NULL)
+            expr = my_strdup("");
+        else
+            expr = my_strdup(context->last_working_dir);
+        // expr = my_strdup(ms_get_env_value("OLDPWD", context));
     }
     cwd_buffer = getcwd(NULL, 0);
+    if (context->last_working_dir != NULL)
+        free(context->last_working_dir);
+    context->last_working_dir = cwd_buffer;
     status = chdir(expr);
     if (status != 0)
-        my_dprintf(2, "%s: %s\n", expr, strerror(errno));
-    else
-        ms_set_env_value(MYSH_OLDPWD_ENV, cwd_buffer, context);
+        my_dprintf(2, "%s: %s.\n", expr, strerror(errno));
+    cwd_buffer = getcwd(NULL, 0);
+    ms_set_env_value("PWD", cwd_buffer, context);
     free(cwd_buffer);
     free(expr);
     return status;

@@ -12,7 +12,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <threads.h>
 #include <unistd.h>
+#include <linux/limits.h>
+#include <sys/wait.h>
 #include "minishell1.h"
 
 void ms_teardown(ms_shell_context_t *context)
@@ -26,11 +29,13 @@ void ms_teardown(ms_shell_context_t *context)
         free(entry->value);
         free(entry);
     }
+    if (context->last_working_dir)
+        free(context->last_working_dir);
 }
 
 int run_command(char **args, ms_shell_context_t *context)
 {
-    if (!args[0])
+    if (!args || !args[0])
         return 0;
     if (!my_strcmp(args[0], "exit"))
         return run_exit(args, context);
@@ -59,7 +64,7 @@ static size_t expand_tilde_size(ms_shell_context_t *context, char *line)
     char *expansion_string = ms_get_env_value("HOME", context);
 
     for (int chr = 0; line[chr]; chr++) {
-        if (line[chr] == '~')
+        if (line[chr] == '~' && (chr == 0 || line[chr - 1] == ' '))
             expansion_size += my_strlen(expansion_string);
         else
             expansion_size += 1;
@@ -77,7 +82,7 @@ static char *expand_tilde(ms_shell_context_t *context, char *line)
     if (!expanded_line)
         return NULL;
     for (int chr = 0; line[chr]; chr++) {
-        if (line[chr] == '~') {
+        if (line[chr] == '~' && (chr == 0 || line[chr - 1] == ' ')) {
             my_strcpy(expanded_line + expansion_size, expansion_string);
             expansion_size += my_strlen(expansion_string);
         } else {
@@ -307,12 +312,15 @@ int main(int argc, char **argv, char **env)
     while (1) {
         display_prompt(&context);
         read = getline(&buf, &bufsize, stdin);
-        if (read < 1)
+        if (read == -1)
             break;
+        if (read == 0)
+            continue;
         buf[read - 1] = '\0';
         process_line(&context, buf);
     }
     free(buf);
     ms_teardown(&context);
+    my_putstr("\n");
     return context.last_exit_status;*/
 }
