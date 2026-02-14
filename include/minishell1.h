@@ -24,8 +24,14 @@
     #define MYSH_MSG_SIGOTHER "Process terminated by signal %d"
     #define MYSH_MSG_COREDUMP " (core dumped)"
 
+    #define MYSH_HISTORY_SIZE 50
+    #define MYSH_IN_BUF_EXTENSION_STEP 256
+    #define MYSH_ESC_SEQ_MAXLEN 64
+
 typedef struct ms_shell_context_s ms_shell_context_t;
 typedef struct ms_env_entry_s ms_env_entry_t;
+typedef struct ms_line_editor_s ms_line_editor_t;
+typedef struct ms_editor_command_s ms_editor_command_t;
 
 struct ms_env_entry_s {
     char *key;
@@ -40,8 +46,24 @@ struct ms_shell_context_s {
     char *last_working_dir;
 };
 
+struct ms_line_editor_s {
+    size_t text_len;
+    size_t caret_pos;
+    char *input_buffer;
+    size_t bufsize;
+    char *history[MYSH_HISTORY_SIZE];
+    int history_top;
+    int history_index;
+};
+
+struct ms_editor_command_s {
+    char key;
+    void (*callback)(ms_line_editor_t *, int, int);
+};
+
 // Main
 void ms_teardown(ms_shell_context_t *context);
+void process_line(ms_shell_context_t *context, char *line);
 
 // Path Utility
 int get_cmd_path(ms_shell_context_t *context, char *search, char *full_path);
@@ -75,5 +97,33 @@ int run_other(char **args, ms_shell_context_t *context);
 // Reading utils
 void enable_raw_mode(struct termios *orig_termios);
 void disable_raw_mode(struct termios *orig_termios);
+
+// Editor Commands
+void msle_history_up(ms_line_editor_t *lined, int mod, int payload);
+void msle_history_down(ms_line_editor_t *lined, int mod, int payload);
+void msle_move_left(ms_line_editor_t *lined, int mod, int payload);
+void msle_move_right(ms_line_editor_t *lined, int mod, int payload);
+void msle_move_start(ms_line_editor_t *lined, int mod, int payload);
+void msle_move_end(ms_line_editor_t *lined, int mod, int payload);
+void msle_misc_codepoint(ms_line_editor_t *lined, int mod, int payload);
+
+// Line Editor Keybinds
+void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined);
+void msle_hit_backspace(ms_line_editor_t *lined);
+void msle_hit_tab(ms_line_editor_t *lined);
+
+// Line Editor Tools
+void msle_refresh_cursor_position(ms_line_editor_t *lined);
+void display_prompt(ms_shell_context_t *context, ms_line_editor_t *lineed);
+int msle_extend_input_buffer(ms_line_editor_t *lined);
+void msle_add_character(ms_line_editor_t *lined, char c);
+int msle_special_key(ms_shell_context_t *ctx, ms_line_editor_t *lined, char c);
+
+// Line Editor Escape Sequences
+
+void msle_read_full_escape(char *sequence, int seq_size, int *i);
+void msle_escape_seq_action(ms_line_editor_t *lined, char *seq, int mod);
+int msle_get_modifier_key(char *sequence);
+void msle_escape_sequence(ms_line_editor_t *lined);
 
 #endif

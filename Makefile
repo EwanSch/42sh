@@ -9,9 +9,22 @@
 #
 
 NAME = mysh
-SRC_FILENAMES = main.c ms_explode.c ms_utils.c ms_path_explorer.c \
-	ms_env_manager.c ms_env_commands.c ms_dir_commands.c \
-	ms_input_reader.c
+SRC_FILENAMES = \
+	main.c \
+	ms_explode.c \
+	ms_utils.c \
+	ms_path_explorer.c \
+	ms_env_manager.c \
+	ms_env_commands.c \
+	ms_dir_commands.c \
+	ms_input_reader.c \
+	ms_le_cmds_history.c \
+	ms_le_cmds_misc.c \
+	ms_le_cmds_movement.c \
+	ms_le_esc_sequence.c \
+	ms_le_keybinds.c \
+	ms_le_tools.c
+
 HEADERS = minishell1.h benjalib.h
 
 
@@ -30,7 +43,7 @@ LIBMY_DIR = $(LIBS_DIR)/benjalib
 LIBMY_MAKE = $(MAKE) -C $(LIBMY_DIR)
 LIBMY_BIN = libbenja.a
 
-CFLAGS += -I$(HEADERS_DIR)
+CFLAGS += -g -I$(HEADERS_DIR)
 LINKER_FLAGS += -Llib -lbenja
 
 codingstyle: CC = epiclang
