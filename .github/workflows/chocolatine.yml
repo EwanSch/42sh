@@ -9,35 +9,27 @@ on:
       - no-ga/*
 
 env:
-  MIRROR_SSH_URL: "git@github.com:EpitechPGE1-2025/G-DOP-200-STG-2-1-chocolatine-1.git"
-  EXECUTABLES: "bin/mysh"
+  EXECUTABLES: "42sh"
 
 jobs:
   check_compilation_and_coding_style:
     runs-on: ubuntu-latest
-
     container:
       image: epitechcontent/epitest-docker
-
     env:
       CC: epiclang
-
     steps:
       - name: Checkout repository
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         uses: actions/checkout@v5
 
       - name: Run banana check
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         run: banana-check-repo || true
 
       - name: Compile project
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         run: make 2>stderr.log; grep "Banana" stderr.log > banana.log || true
         timeout-minutes: 2
 
       - name: Show coding style errors
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         run: |
           if [ -s banana.log ]; then
             while IFS= read -r line; do
@@ -51,11 +43,9 @@ jobs:
           fi
 
       - name: Clean project
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         run: make clean
 
       - name: Check executables
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         run: |
           for exe in $EXECUTABLES; do
             if [ ! -x "$exe" ]; then
@@ -74,31 +64,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         uses: actions/checkout@v5
 
       - name: Run unit tests
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
         run: make tests_run
         timeout-minutes: 2
 
-
-  push_to_mirror:
-    if: github.event_name == 'push'
-    needs: run_tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Mirror into Epitech Chocolatine repo
-        if: ${{ !contains(env.MIRROR_SSH_URL, github.repository) }}
-        uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url:
-            ${{ env.MIRROR_SSH_URL }}
-          ssh_private_key: 
-            ${{ secrets.GIT_SSH_PRIVATE_KEY }}

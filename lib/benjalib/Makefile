@@ -11,7 +11,7 @@
 
 NAME = libbenja.a
 
-SRC_FILENAMES := \
+SRC := \
 	printf/my_printf.c \
 	printf/printf_utils.c \
 	printf/printf_utils_strbuf.c \
@@ -86,38 +86,34 @@ OBJ_DIR = build
 BIN_DIR = bin
 HEADERS_DIR = include
 
-SRC_FILES = $(SRC_FILENAMES:%=$(SRC_DIR)/%)
-OBJ_FILES = $(SRC_FILENAMES:%.c=$(OBJ_DIR)/%.o)
+OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 HEADER_FILES = $(HEADERS:%=$(HEADERS_DIR)/%)
-
-libtest: CFLAGS += -g
-codingstyle: CC = epiclang
-
-export CC
-export CFLAGS
 
 all: $(NAME)
 
-$(NAME): $(OBJ_FILES) | $(BIN_DIR)
-	ar rc $(NAME) $(OBJ_FILES)
+$(NAME): $(OBJ)
+	@printf ':: Building %s archive...' "$@"
+	@ar rc $(NAME) $(OBJ)
+	@echo 'OK'
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADER_FILES) | $(OBJ_DIR)
-	mkdir -p $(dir $@) && $(CC) -I$(HEADERS_DIR) $(CFLAGS) -c $< -o $@ $(EXTRA_FLAGS)
+	@printf ':: Compiling %s...' "$<"
+	@mkdir -p $(dir $@) && $(CC) -I$(HEADERS_DIR) $(CFLAGS) -c $< -o $@ $(EXTRA_FLAGS)
+	@echo 'OK'
 
-$(OBJ_DIR) $(BIN_DIR):
-	mkdir -p $@
+$(OBJ_DIR):
+	@mkdir -p $@
 
 clean:
-	rm -rf $(OBJ_DIR) *.gcda *.gcno *.gcov *.gcov.json.gz *.profraw
+	@printf ':: Cleaning intermediary files...'
+	@rm -rf $(OBJ_DIR) *.gcda *.gcno *.gcov *.gcov.json.gz *.profraw
+	@echo 'OK'
 
 fclean: clean
-	rm -rf $(BIN_DIR)
-	rm -f $(NAME)
+	@printf ':: Cleaning output...'
+	@rm -f $(NAME)
+	@echo 'OK'
 
-re:
-	$(MAKE) fclean
-	$(MAKE) all
+re: fclean all
 
-codingstyle: $(NAME)
-
-.PHONY: re fclean clean all codingstyle 
+.PHONY: re fclean clean all

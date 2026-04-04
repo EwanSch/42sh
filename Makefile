@@ -8,7 +8,7 @@
 # Amélie Ambleton--Guth
 #
 
-NAME = mysh
+NAME = 42sh
 SRC_FILENAMES = main.c ms_explode.c ms_utils.c ms_path_explorer.c \
 	ms_env_manager.c ms_env_commands.c ms_dir_commands.c \
 	ms_command_parser.c ms_errors.c ms_strutils.c \
@@ -21,68 +21,57 @@ HEADERS = minishell1.h minishell2.h benjalib.h
 
 SRC_DIR = src
 OBJ_DIR = build
-BIN_DIR = bin
 LIBS_DIR = lib
 HEADERS_DIR = include
 
 SRC_FILES = $(SRC_FILENAMES:%=$(SRC_DIR)/%)
 OBJ_FILES = $(SRC_FILENAMES:%.c=$(OBJ_DIR)/%.o)
-BIN_FILE = $(BIN_DIR)/$(NAME)
 HEADER_FILES = $(HEADERS:%=$(HEADERS_DIR)/%)
 
 LIBMY_DIR = $(LIBS_DIR)/benjalib
-LIBMY_MAKE = $(MAKE) -C $(LIBMY_DIR)
+LIBMY_MAKE = $(MAKE) --no-print-directory -C $(LIBMY_DIR)
 LIBMY_BIN = libbenja.a
 
 CFLAGS += -I$(HEADERS_DIR)
-LINKER_FLAGS += -Llib -lbenja
-
-codingstyle: CC = epiclang
-
-# Extra flags reserved for gcovr profiling flags
-
-export CC
+LINKER_DIRS += -Llib
+LINKER_FLAGS += -lbenja
 
 all: $(NAME)
-	
-$(NAME): $(BIN_FILE)
-	ln -sf $(BIN_FILE) $(NAME)
 
-$(BIN_FILE): $(OBJ_FILES) $(LIBS_DIR)/$(LIBMY_BIN) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(BIN_FILE) $(OBJ_FILES) $(LINKER_DIRS) $(LINKER_FLAGS)
+$(NAME): $(OBJ_FILES) $(LIBS_DIR)/$(LIBMY_BIN)
+	@echo "[Linking] $@"
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ_FILES) $(LINKER_DIRS) $(LINKER_FLAGS)
+	@echo "[$@] Build Success"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADER_FILES) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@ $(EXTRA_FLAGS)
+	@echo "[Compiling] $<"
+	@$(CC) $(CFLAGS) -c $< -o $@ $(EXTRA_FLAGS)
 
 $(LIBS_DIR)/$(LIBMY_BIN):
-	$(LIBMY_MAKE) all
-	cp $(LIBMY_DIR)/$(LIBMY_BIN) $(LIBS_DIR)/
+	@echo "[Lib] Building $<"
+	@$(LIBMY_MAKE) all | awk '$$0="  "$$0'
+	@echo "[Lib] Build Success"
+	@cp $(LIBMY_DIR)/$(LIBMY_BIN) $(LIBS_DIR)/
 
-$(OBJ_DIR) $(BIN_DIR):
-	mkdir -p $@
+$(OBJ_DIR):
+	@mkdir -p $@
 
 clean:
-	rm -rf $(OBJ_DIR) *.gcda *.gcno *.gcov *.gcov.json.gz *.profraw
-	$(LIBMY_MAKE) clean 
+	@$(LIBMY_MAKE) clean | awk '$$0="  "$$0'
+	@rm -rf $(OBJ_DIR) *.gcda *.gcno *.gcov *.gcov.json.gz *.profraw
+	@echo "[Clean] Removed intermediary and debug outputs"
 
 fclean: clean
-	rm -rf $(BIN_DIR)
-	$(LIBMY_MAKE) fclean
-	rm -f $(LIBS_DIR)/$(LIBMY_BIN)
+	@$(LIBMY_MAKE) fclean | awk '$$0="  "$$0'
+	@rm -f $(NAME)
+	@rm -f $(LIBS_DIR)/$(LIBMY_BIN)
+	@echo "[Clean] Removed all output file, running banana-check-repo"
+	@banana-check-repo | awk '$$0="  "$$0'
+	@echo "[Clean] Repository clean"
 
-re:
-	$(MAKE) fclean
-	$(MAKE) all
-
-run: $(BIN_FILE)
-	./$(BIN_FILE)
-
-codingstyle:
-	$(MAKE) clean
-	rm -rf $(BIN_DIR)
-	$(MAKE) all
+re: fclean all
 
 tests_run:
-	echo Not implemented yet.
+	@echo "[Tests] [WARN] Not implemented yet."
 
-.PHONY: re fclean clean all codingstyle run tests_run
+.PHONY: re fclean clean all tests_run
