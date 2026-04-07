@@ -43,7 +43,7 @@ void ms_teardown(ms_shell_context_t *context)
     context->reader = NULL;
 }
 
-static int run_command(char **args, ms_shell_context_t *context)
+int run_command(char **args, ms_shell_context_t *context)
 {
     if (!args || !args[0])
         return 0;
@@ -60,7 +60,7 @@ static int run_command(char **args, ms_shell_context_t *context)
     return run_other(args, context);
 }
 
-static int process_line_v2(ms_shell_context_t *context, char *line)
+int process_line(ms_shell_context_t *context, char *line)
 {
     list_t *tokens;
     char *expanded;
@@ -82,7 +82,7 @@ static void prepare_variables(ms_shell_context_t *context)
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
 }
-
+/*
 static int main_loop(ms_shell_context_t *context, linereader_t *lr)
 {
     if (!lr || !context)
@@ -94,18 +94,19 @@ static int main_loop(ms_shell_context_t *context, linereader_t *lr)
     context->last_exit_status = process_line_v2(context, context->line_buffer);
     free(context->line_buffer);
     return 0;
-}
+}*/
 
-static void msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
+static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 {
     char c;
+    int res = 0;
 
     while (1) {
         display_prompt(context, lined);
         if (read(STDIN_FILENO, &c, 1) != 1)
-            return;
+            return 84;
         if (c == 0x04)
-            return;
+            break;
         if (msle_special_key(context, lined, c))
             continue;
         if ((lined->text_len + 1) >= lined->bufsize &&
@@ -113,6 +114,7 @@ static void msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         msle_add_character(lined, c);
     }
+    return res;
 }
 
 int main(int argc, char **argv, char **env)
@@ -129,9 +131,8 @@ int main(int argc, char **argv, char **env)
     context.reader = lr_from_stream(stdin);
     if (!context.reader)
         return_value = 84;
-    while (return_value == 0)
-        return_value = main_loop(&context, context.reader);
-    msle_mainloop(&context, &lined);
+    if (return_value == 0)
+        return_value = msle_mainloop(&context, &lined);
     safe_free(&lined.history[lined.history_index]);
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);
