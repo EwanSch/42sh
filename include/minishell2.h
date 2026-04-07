@@ -115,6 +115,7 @@ struct ms_syntax_tree_s {
 int ms_fail(ms_shell_context_t *context, ms_error_t error);
 int ms_fail_parse(ms_shell_context_t *context, ms_error_t error,
     ms_token_t *token);
+int ms_error(char *error);
 
 // LineReader util
 linereader_t *lr_new(const char *filename);

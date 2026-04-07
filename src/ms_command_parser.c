@@ -16,6 +16,14 @@
 #include <stdbool.h>
 #include "minishell2.h"
 
+int end_parse_err(ms_parser_t *parser)
+{
+    if (parser->quote_mode == MS_QUOTE_SINGLE)
+        return ms_error("Unmatched '\''.");
+    if (parser->quote_mode == MS_QUOTE_DOUBLE)
+        return ms_error("Unmatched '\"'.");
+}
+
 static int is_solo_word(char const *string)
 {
     if (!string || !string[0])
@@ -32,10 +40,10 @@ static bool is_whitespace(char c)
     return (c == ' ' || c == '\t' || c == '\n');
 }
 
-static bool is_quote(char c)
-{
-    return (c == '\'' || c == '"' || c == '`');
-}
+// static bool is_quote(char c)
+// {
+//     return (c == '\'' || c == '"' || c == '`');
+// }
 
 static ms_token_type_t get_solo_token_type(char *chr)
 {
@@ -164,5 +172,5 @@ list_t *cut_words(char *string)
         i += delimit_words(string + i, &lst, &parser) - 1;
     }
     add_token(&lst, NULL, 0);
-    return lst;
+    return end_parse_err(&parser) ? NULL : lst;
 }
