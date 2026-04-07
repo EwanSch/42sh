@@ -6,6 +6,7 @@
 ** Auto-Generated with Episetup by Amélie
 ** Author:
 ** Amélie Ambleton--Guth
+** Feb 2026
 */
 
 #include <errno.h>
@@ -42,7 +43,7 @@ void ms_teardown(ms_shell_context_t *context)
     context->reader = NULL;
 }
 
-int run_command(char **args, ms_shell_context_t *context)
+static int run_command(char **args, ms_shell_context_t *context)
 {
     if (!args || !args[0])
         return 0;
@@ -95,11 +96,33 @@ static int main_loop(ms_shell_context_t *context, linereader_t *lr)
     return 0;
 }
 
+static void msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
+{
+    char c;
+
+    while (1) {
+        display_prompt(context, lined);
+        if (read(STDIN_FILENO, &c, 1) != 1)
+            return;
+        if (c == 0x04)
+            return;
+        if (msle_special_key(context, lined, c))
+            continue;
+        if ((lined->text_len + 1) >= lined->bufsize &&
+            msle_extend_input_buffer(lined))
+            continue;
+        msle_add_character(lined, c);
+    }
+}
+
 int main(int argc, char **argv, char **env)
 {
+    struct termios orig_termios;
     ms_shell_context_t context = {0};
+    ms_line_editor_t lined = {0};
     int return_value = 0;
 
+    enable_raw_mode(&orig_termios);
     context.is_interactive = isatty(STDIN_FILENO);
     ms_populate_env_from_dump(env, &context);
     prepare_variables(&context);
@@ -108,6 +131,9 @@ int main(int argc, char **argv, char **env)
         return_value = 84;
     while (return_value == 0)
         return_value = main_loop(&context, context.reader);
+    msle_mainloop(&context, &lined);
+    safe_free(&lined.history[lined.history_index]);
+    disable_raw_mode(&orig_termios);
     ms_teardown(&context);
     if (context.is_interactive)
         my_putstr("\n");
