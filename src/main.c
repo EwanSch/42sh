@@ -6,6 +6,7 @@
 ** Auto-Generated with Episetup by Amélie
 ** Author:
 ** Amélie Ambleton--Guth
+** Feb 2026
 */
 
 #include <errno.h>
@@ -59,7 +60,7 @@ int run_command(char **args, ms_shell_context_t *context)
     return run_other(args, context);
 }
 
-static int process_line_v2(ms_shell_context_t *context, char *line)
+int process_line(ms_shell_context_t *context, char *line)
 {
     list_t *tokens;
     char *expanded;
@@ -81,7 +82,7 @@ static void prepare_variables(ms_shell_context_t *context)
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
 }
-
+/*
 static int main_loop(ms_shell_context_t *context, linereader_t *lr)
 {
     if (!lr || !context)
@@ -93,21 +94,47 @@ static int main_loop(ms_shell_context_t *context, linereader_t *lr)
     context->last_exit_status = process_line_v2(context, context->line_buffer);
     free(context->line_buffer);
     return 0;
+}*/
+
+static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
+{
+    char c;
+    int res = 0;
+
+    while (1) {
+        display_prompt(context, lined);
+        if (read(STDIN_FILENO, &c, 1) != 1)
+            return 84;
+        if (c == 0x04)
+            break;
+        if (msle_special_key(context, lined, c))
+            continue;
+        if ((lined->text_len + 1) >= lined->bufsize &&
+            msle_extend_input_buffer(lined))
+            continue;
+        msle_add_character(lined, c);
+    }
+    return res;
 }
 
 int main(int argc, char **argv, char **env)
 {
+    struct termios orig_termios;
     ms_shell_context_t context = {0};
+    ms_line_editor_t lined = {0};
     int return_value = 0;
 
+    enable_raw_mode(&orig_termios);
     context.is_interactive = isatty(STDIN_FILENO);
     ms_populate_env_from_dump(env, &context);
     prepare_variables(&context);
     context.reader = lr_from_stream(stdin);
     if (!context.reader)
         return_value = 84;
-    while (return_value == 0)
-        return_value = main_loop(&context, context.reader);
+    if (return_value == 0)
+        return_value = msle_mainloop(&context, &lined);
+    safe_free(&lined.history[lined.history_index]);
+    disable_raw_mode(&orig_termios);
     ms_teardown(&context);
     if (context.is_interactive)
         my_putstr("\n");
