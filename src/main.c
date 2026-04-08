@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include "minishell1.h"
 #include "minishell2.h"
+#include "shell.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -81,6 +82,8 @@ static void prepare_variables(ms_shell_context_t *context)
 {
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
+    set_term_variable(context);
+    set_cwd_variable(context);
 }
 /*
 static int main_loop(ms_shell_context_t *context, linereader_t *lr)

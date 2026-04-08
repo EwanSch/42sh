@@ -38,8 +38,9 @@ SRC_FILENAMES = \
 	ms_le_cmds_movement.c \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
-	ms_le_tools.c
-HEADERS = minishell1.h minishell2.h benjalib.h
+	ms_le_tools.c \
+	ms_special_variables.c
+HEADERS = minishell1.h minishell2.h benjalib.h shell.h
 
 
 SRC_DIR = src

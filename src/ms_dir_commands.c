@@ -16,7 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-
+#include "shell.h"
 #include "minishell1.h"
 #include <sys/stat.h>
 
@@ -167,6 +167,7 @@ int run_cd(char **args, ms_shell_context_t *context)
         my_dprintf(2, "%s: %s.\n", expr, strerror(errno));
     cwd_buffer = getcwd(NULL, 0);
     km_set(MYSH_CWD_ENV, cwd_buffer, &context->env);
+    km_set(MS_VAR_CWD, cwd_buffer, &context->variables);
     safe_free(&cwd_buffer);
     safe_free(&expr);
     return status != 0;
