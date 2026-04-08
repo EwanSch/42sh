@@ -1,0 +1,141 @@
+/*
+** EPITECH PROJECT, 2026
+** minishell1
+** File description:
+** MiniShell utils
+** Author:
+** Amélie Ambleton--Guth
+*/
+
+#include <ctype.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <string.h>
+
+#include "minishell2.h"
+#include "../include/minishell1.h"
+#include "var_substitution.h"
+
+char *del_start_str(char *str, int amount)
+{
+    int str_len = 0;
+    int futur_size = 0;
+
+    if (!str || str[0] == 0)
+        return NULL;
+    str_len = my_strlen(str);
+    if (amount > str_len || amount < 0)
+        return NULL;
+    futur_size = str_len - amount;
+    for (int i = 0; i < futur_size; i++)
+        str[i] = str[i + amount];
+    str[futur_size] = 0;
+    return str;
+}
+
+char *list_to_str(list_t *list)
+{
+    char *str = NULL;
+    int size = 0;
+    list_t *tmp;
+
+    while (list) {
+        size += strlen((char *)list->data);
+        str = my_recalloc(str, sizeof(char) * (size + 1));
+        if (!str)
+            return NULL;
+        strcat(str, list->data);
+        free(list->data);
+        tmp = list;
+        list = list->next;
+        free(tmp);
+    }
+    return str;
+}
+
+static void resize_var(int i, char *key, var_utils_t *utils)
+{
+    if (key[1] == '{' && utils->str[i + 1] == '}') {
+        del_start_str(key, 2);
+        key[strlen(key)] = 0;
+        utils->word_size++;
+    } else
+        del_start_str(key, 1);
+}
+
+static int get_val_data(int i, var_utils_t *utils, list_t *list,
+    keymap_t *keymap)
+{
+    char *var;
+    char *key = NULL;
+
+    if (utils->dollar_pos != -1) {
+        key = strndup(&utils->str[utils->dollar_pos],
+            i - utils->dollar_pos + 1);
+        utils->word_size += i - utils->dollar_pos + 1;
+        resize_var(i, key, utils);
+        utils->dollar_pos = -1;
+        var = km_get_or_default(key, keymap, NULL);
+        free(key);
+        if (!var)
+            return 84;
+        var = alloc_filled_str(var);
+        ll_push(&list, var);
+    }
+    return 0;
+}
+
+int end_of_var(int i, var_utils_t *utils, list_t *list, keymap_t *keymap)
+{
+    if (!utils->str[i + 1] || utils->str[i + 1] == ' ' ||
+        utils->str[i + 1] == '}' || utils->str[i + 1] == '$') {
+        if (get_val_data(i, utils, list, keymap))
+            return 84;
+    }
+    return 0;
+}
+
+char *var_sub(char *str, keymap_t *keymap)
+{
+    list_t *list = NULL;
+    var_utils_t utils = {0};
+
+    utils.dollar_pos = -1;
+    utils.str = str;
+    for (int i = 0; str[i]; i++) {
+        if (end_of_var(i, &utils, list, keymap))
+            return NULL;
+        if (str[i] == '$') {
+            ll_push(&list, strndup(&str[utils.word_size],
+                    i - utils.word_size));
+            utils.dollar_pos = i;
+            utils.word_size = i;
+        }
+        if (str[i + 1] == '\0')
+            ll_push(&list, strndup(&str[utils.word_size],
+                    i - utils.word_size + 1));
+    }
+    return list_to_str(list);
+}
+
+// int main(void)
+// {
+//     char *var = "sure$cwd$prompt$prompt hello$prompt what ${cwd}huu  ";
+//     char *path;
+//     keymap_t *km = NULL;
+//
+//     km_set("cwd", "/home/moi", &km);
+//     km_set("prompt", "22h37", &km);
+//     path = var_sub(var, km);
+//     if (!path) {
+//         printf("goodbye\n");
+//     }
+//     printf("str: %s\n", path);
+//     free(path);
+//     km_unset("cwd", &km);
+//     km_unset("prompt", &km);
+// }

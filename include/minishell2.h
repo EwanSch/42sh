@@ -169,4 +169,6 @@ int visit_redirection(ms_syntax_tree_t *node,
 
 int my_strindexof(char const *str, char c);
 
+char *str_destroyer(char *str, int *charac);
+
 #endif

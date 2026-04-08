@@ -9,38 +9,44 @@
 #
 
 NAME = 42sh
-SRC_FILENAMES = \
-	main.c \
-	ms_explode.c \
-	ms_utils.c \
-	ms_path_explorer.c \
-	ms_env_manager.c \
-	ms_env_commands.c \
-	ms_dir_commands.c \
-	ms_command_parser.c \
-	ms_errors.c \
-	ms_strutils.c \
-	ms_grammar.c \
-	ms_grammar_tools.c \
-	ms_runner.c \
-	ms_type_utils.c \
-	ms_pipeline.c \
-	ms_path_expansion.c \
-	ms_redirections.c \
-	ms_linereader.c \
-	ms_prompts.c \
-	ms_keymap.c \
-	ms_verifiers.c \
-	ms_teardown.c \
-	ms_input_reader.c \
-	ms_le_cmds_history.c \
-	ms_le_cmds_misc.c \
-	ms_le_cmds_movement.c \
-	ms_le_esc_sequence.c \
-	ms_le_keybinds.c \
-	ms_le_tools.c
-HEADERS = minishell1.h minishell2.h benjalib.h
+#SRC_FILENAMES = \
+#	main.c \
+#	ms_explode.c \
+#	ms_utils.c \
+#	ms_path_explorer.c \
+#	ms_env_manager.c \
+#	ms_env_commands.c \
+#	ms_dir_commands.c \
+#	ms_command_parser.c \
+#	ms_errors.c \
+#	ms_strutils.c \
+#	ms_grammar.c \
+#	ms_grammar_tools.c \
+#	ms_runner.c \
+#	ms_type_utils.c \
+#	ms_pipeline.c \
+#	ms_path_expansion.c \
+#	ms_redirections.c \
+#	ms_linereader.c \
+#	ms_prompts.c \
+#	ms_keymap.c \
+#	ms_verifiers.c \
+#	ms_teardown.c \
+#	ms_input_reader.c \
+#	ms_le_cmds_history.c \
+#	ms_le_cmds_misc.c \
+#	ms_le_cmds_movement.c \
+#	ms_le_esc_sequence.c \
+#	ms_le_keybinds.c \
+#	ms_le_tools.c	\
 
+SRC_FILENAMES = ms_var_substitution.c	\
+				ms_keymap.c	\
+				my_recalloc.c	\
+				alloc_filled_str.c
+
+HEADERS = minishell1.h minishell2.h benjalib.h
+CC = epiclang
 
 SRC_DIR = src
 OBJ_DIR = build
@@ -55,7 +61,7 @@ LIBMY_DIR = $(LIBS_DIR)/benjalib
 LIBMY_MAKE = $(MAKE) --no-print-directory -C $(LIBMY_DIR)
 LIBMY_BIN = libbenja.a
 
-CFLAGS += -I$(HEADERS_DIR)
+CFLAGS += -g -I$(HEADERS_DIR)
 LINKER_DIRS += -Llib
 LINKER_FLAGS += -lbenja
 

@@ -125,7 +125,7 @@ int update_parser2(char *string, int i, ms_parser_t *parser)
         parser->backslashed = false;
         return 1;
     }
-    if (string[i] == '\'' && parser->quote_mode == MS_QUOTE_SINGLE) {
+    if ((string[i] == '\'' && (parser->quote_mode == MS_QUOTE_SINGLE)) || string[i] == '\"' && (parser->quote_mode == MS_QUOTE_DOUBLE)) {
         parser->quote_mode = MS_QUOTE_NONE;
         string[i] = RECORD_SEPARATOR;
         return 1;
@@ -135,10 +135,12 @@ int update_parser2(char *string, int i, ms_parser_t *parser)
     parser->backslashed = string[i] == '\\';
     if (string[i] == '\'')
         parser->quote_mode = MS_QUOTE_SINGLE;
+    if (string[i] == '\"')
+        parser->quote_mode = MS_QUOTE_DOUBLE;
     if (PARSER_ESCAPING(parser)) {
         string[i] = RECORD_SEPARATOR;
         return 1;
-    }
+
     return 0;
 }
 
