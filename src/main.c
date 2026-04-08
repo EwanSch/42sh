@@ -108,8 +108,10 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
         display_prompt(context, lined);
         if (read(STDIN_FILENO, &c, 1) != 1)
             return 84;
-        if (c == 0x04)
+        if (command_eof(c, context))
             break;
+        if (c == 0x04)
+            continue;
         if (msle_special_key(context, lined, c))
             continue;
         if ((lined->text_len + 1) >= lined->bufsize &&

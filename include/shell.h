@@ -13,13 +13,15 @@
     #include "minishell1.h"
 
     #define MS_VAR_TERM "term"
-    #define MS_VAR_PRECMD "precmd"
-    #define MS_VAR_CWDCMD "cwdcmd"
     #define MS_VAR_CWD "cwd"
+    #define MS_VAR_IGNOREEOF "ignoreeof"
 
     #define MS_ENV_TERM "TERM"
 
+    #define ERROR_IGNOREEOF_CTRL_D "Use \"exit\" to leave tcsh."
+
 void set_cwd_variable(ms_shell_context_t *context);
 void set_term_variable(ms_shell_context_t *context);
+int command_eof(char c, ms_shell_context_t *context);
 
 #endif

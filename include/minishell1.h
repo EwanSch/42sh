@@ -109,6 +109,7 @@ char *km_get(char *key, keymap_t *keymap);
 void km_set(char *key, char *value, keymap_t **keymap);
 void km_unset(char *key, keymap_t **keymap);
 char *km_get_or_default(char *key, keymap_t *keymap, char *deflt);
+bool km_match(char *key, char *value, keymap_t *keymap);
 
 // Env utils
 void ms_populate_env_from_dump(char **env_dump, ms_shell_context_t *context);
