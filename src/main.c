@@ -78,12 +78,16 @@ int process_line(ms_shell_context_t *context, char *line)
     return ms_runner(tokens, context);
 }
 
-static void prepare_variables(ms_shell_context_t *context)
+static void prepare_variables(ms_shell_context_t *context, char **argv,
+    int argc)
 {
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
+    km_set(MS_VAR_ADDSUFFIX, NULL, &context->variables);
+    km_set(MS_VAR_ARGV, NULL, &context->variables);
     set_term_variable(context);
     set_cwd_variable(context);
+    save_argv(context, argv, argc);
 }
 /*
 static int main_loop(ms_shell_context_t *context, linereader_t *lr)
@@ -132,7 +136,7 @@ int main(int argc, char **argv, char **env)
     enable_raw_mode(&orig_termios);
     context.is_interactive = isatty(STDIN_FILENO);
     ms_populate_env_from_dump(env, &context);
-    prepare_variables(&context);
+    prepare_variables(&context, argv, argc);
     context.reader = lr_from_stream(stdin);
     if (!context.reader)
         return_value = 84;

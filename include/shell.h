@@ -15,6 +15,8 @@
     #define MS_VAR_TERM "term"
     #define MS_VAR_CWD "cwd"
     #define MS_VAR_IGNOREEOF "ignoreeof"
+    #define MS_VAR_ADDSUFFIX "addsuffix"
+    #define MS_VAR_ARGV "argv"
 
     #define MS_ENV_TERM "TERM"
 
@@ -23,5 +25,7 @@
 void set_cwd_variable(ms_shell_context_t *context);
 void set_term_variable(ms_shell_context_t *context);
 int command_eof(char c, ms_shell_context_t *context);
+
+void save_argv(ms_shell_context_t *context, char **argv, int argc);
 
 #endif

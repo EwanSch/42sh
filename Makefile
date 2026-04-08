@@ -39,7 +39,8 @@ SRC_FILENAMES = \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
 	ms_le_tools.c \
-	ms_special_variables.c
+	ms_special_variables.c	\
+	ms_argv_variables.c
 HEADERS = minishell1.h minishell2.h benjalib.h shell.h
 
 
