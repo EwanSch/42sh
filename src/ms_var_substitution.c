@@ -92,9 +92,40 @@ static int get_val_data(int i, var_utils_t *utils, list_t *list,
 int end_of_var(int i, var_utils_t *utils, list_t *list, keymap_t *keymap)
 {
     if (!utils->str[i + 1] || utils->str[i + 1] == ' ' ||
-        utils->str[i + 1] == '}' || utils->str[i + 1] == '$') {
+        utils->str[i + 1] == '}' || utils->str[i + 1] == '$' ||
+        utils->str[i + 1] == '\"' || utils->str[i + 1] == '\'') {
         if (get_val_data(i, utils, list, keymap))
             return 84;
+    }
+    return 0;
+}
+
+void each_quote(char str, int *which_quote)
+{
+    if (str == '\"' && *which_quote != 1) {
+        if (*which_quote == 2)
+            *which_quote = 0;
+        else
+            *which_quote = 2;
+    }
+    if (str == '\'' && *which_quote != 2) {
+        if (*which_quote == 1)
+            *which_quote = 0;
+        else
+            *which_quote = 1;
+    }
+}
+
+static int get_value(int i, var_utils_t *utils, int which_quote, list_t **list)
+{
+    if (utils->str[i] == '$' && which_quote != 1) {
+        if (utils->str[i + 1] == '\0' || utils->str[i + 1] == ' ') {
+            return 1;
+        }
+        ll_push(list, strndup(&utils->str[utils->word_size],
+                i - utils->word_size));
+        utils->dollar_pos = i;
+        utils->word_size = i;
     }
     return 0;
 }
@@ -103,39 +134,19 @@ char *var_sub(char *str, keymap_t *keymap)
 {
     list_t *list = NULL;
     var_utils_t utils = {0};
+    int which_quote = 0;
 
     utils.dollar_pos = -1;
     utils.str = str;
     for (int i = 0; str[i]; i++) {
+        each_quote(str[i], &which_quote);
         if (end_of_var(i, &utils, list, keymap))
             return NULL;
-        if (str[i] == '$') {
-            ll_push(&list, strndup(&str[utils.word_size],
-                    i - utils.word_size));
-            utils.dollar_pos = i;
-            utils.word_size = i;
-        }
+        if (get_value(i, &utils, which_quote, &list))
+            continue;
         if (str[i + 1] == '\0')
             ll_push(&list, strndup(&str[utils.word_size],
                     i - utils.word_size + 1));
     }
     return list_to_str(list);
 }
-
-// int main(void)
-// {
-//     char *var = "sure$cwd$prompt$prompt hello$prompt what ${cwd}huu  ";
-//     char *path;
-//     keymap_t *km = NULL;
-//
-//     km_set("cwd", "/home/moi", &km);
-//     km_set("prompt", "22h37", &km);
-//     path = var_sub(var, km);
-//     if (!path) {
-//         printf("goodbye\n");
-//     }
-//     printf("str: %s\n", path);
-//     free(path);
-//     km_unset("cwd", &km);
-//     km_unset("prompt", &km);
-// }

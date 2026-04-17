@@ -94,6 +94,8 @@ typedef struct {
 
 struct ms_parser_s {
     bool backslashed;
+    int curr_char;
+    char *str_buf;
     ms_quote_mode_t quote_mode;
     list_t *tokens;
 };
@@ -158,7 +160,7 @@ int ms_prompt(ms_shell_context_t *context, char *type);
 int pipeline_handler(ms_syntax_tree_t *node, ms_shell_context_t *context);
 
 // Lexing
-list_t *cut_words(char *string);
+list_t *cut_words(char *string, ms_shell_context_t *context);
 
 // Path expansion
 char *expand_paths(char *string, ms_shell_context_t *ctx);

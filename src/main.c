@@ -70,7 +70,7 @@ int process_line(ms_shell_context_t *context, char *line)
     expanded = expand_paths(line, context);
     if (!expanded)
         return 1;
-    tokens = cut_words(expanded);
+    tokens = cut_words(expanded, context);
     free(expanded);
     if (!tokens)
         return 1;
@@ -79,6 +79,7 @@ int process_line(ms_shell_context_t *context, char *line)
 
 static void prepare_variables(ms_shell_context_t *context)
 {
+    km_set("cwd", "here", &context->variables);
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
 }

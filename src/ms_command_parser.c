@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include "minishell2.h"
+#include "var_substitution.h"
 
 int end_parse_err(ms_parser_t *parser)
 {
@@ -22,6 +23,7 @@ int end_parse_err(ms_parser_t *parser)
         return ms_error("Unmatched '\''.");
     if (parser->quote_mode == MS_QUOTE_DOUBLE)
         return ms_error("Unmatched '\"'.");
+    return 0;
 }
 
 static int is_solo_word(char const *string)
@@ -39,11 +41,6 @@ static bool is_whitespace(char c)
 {
     return (c == ' ' || c == '\t' || c == '\n');
 }
-
-// static bool is_quote(char c)
-// {
-//     return (c == '\'' || c == '"' || c == '`');
-// }
 
 static ms_token_type_t get_solo_token_type(char *chr)
 {
@@ -104,20 +101,20 @@ static void add_token(list_t **lst, char *lexeme, int length)
     }
     ll_push(lst, token);
 }
-/*
-int update_parser(char c, ms_parser_t *parser)
+
+int which_quote(ms_parser_t *parser, char string)
 {
-    if (c == '\\' && parser->quote_mode != MS_QUOTE_SINGLE
-        && !parser->backslashed) {
-        parser->backslashed = true;
-        return 0;
-    }
-    if (parser->backslashed) {
-        parser->backslashed = false;
-        return 0;
+    parser->backslashed = string == '\\';
+    if (string == '\'')
+        parser->quote_mode = MS_QUOTE_SINGLE;
+    if (string == '\"')
+        parser->quote_mode = MS_QUOTE_DOUBLE;
+    if (PARSER_ESCAPING(parser)) {
+        string = RECORD_SEPARATOR;
+        return 1;
     }
     return 0;
-}*/
+}
 
 int update_parser2(char *string, int i, ms_parser_t *parser)
 {
@@ -125,22 +122,16 @@ int update_parser2(char *string, int i, ms_parser_t *parser)
         parser->backslashed = false;
         return 1;
     }
-    if ((string[i] == '\'' && (parser->quote_mode == MS_QUOTE_SINGLE)) || string[i] == '\"' && (parser->quote_mode == MS_QUOTE_DOUBLE)) {
+    if ((string[i] == '\'' && (parser->quote_mode == MS_QUOTE_SINGLE)) ||
+        string[i] == '\"' && (parser->quote_mode == MS_QUOTE_DOUBLE)) {
         parser->quote_mode = MS_QUOTE_NONE;
         string[i] = RECORD_SEPARATOR;
         return 1;
     }
     if (PARSER_ESCAPING(parser))
         return 1;
-    parser->backslashed = string[i] == '\\';
-    if (string[i] == '\'')
-        parser->quote_mode = MS_QUOTE_SINGLE;
-    if (string[i] == '\"')
-        parser->quote_mode = MS_QUOTE_DOUBLE;
-    if (PARSER_ESCAPING(parser)) {
-        string[i] = RECORD_SEPARATOR;
+    if (which_quote(parser, string[i]))
         return 1;
-
     return 0;
 }
 
@@ -163,16 +154,22 @@ int delimit_words(char *string, list_t **lst, ms_parser_t *parser)
     return i;
 }
 
-list_t *cut_words(char *string)
+list_t *cut_words(char *string, ms_shell_context_t *context)
 {
     list_t *lst = NULL;
     ms_parser_t parser = {0};
+    char *var_string = NULL;
 
-    for (int i = 0; string[i]; i++) {
-        if (is_whitespace(string[i]) && !PARSER_ESCAPING(&parser))
+    var_string = var_sub(string, context->variables);
+    if (!var_string)
+        return NULL;
+    for (int i = 0; var_string[i]; i++) {
+        parser.curr_char = i;
+        if (is_whitespace(var_string[i]) && !PARSER_ESCAPING(&parser)) {
             continue;
-        i += delimit_words(string + i, &lst, &parser) - 1;
+        }
+        i += delimit_words(var_string + i, &lst, &parser) - 1;
     }
     add_token(&lst, NULL, 0);
-    return end_parse_err(&parser) ? NULL : lst;
+    return lst;
 }
