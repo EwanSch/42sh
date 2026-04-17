@@ -102,15 +102,15 @@ static void add_token(list_t **lst, char *lexeme, int length)
     ll_push(lst, token);
 }
 
-int which_quote(ms_parser_t *parser, char string)
+int which_quote(ms_parser_t *parser, char *string, int i)
 {
-    parser->backslashed = string == '\\';
-    if (string == '\'')
+    parser->backslashed = string[i] == '\\';
+    if (string[i] == '\'')
         parser->quote_mode = MS_QUOTE_SINGLE;
-    if (string == '\"')
+    if (string[i] == '\"')
         parser->quote_mode = MS_QUOTE_DOUBLE;
     if (PARSER_ESCAPING(parser)) {
-        string = RECORD_SEPARATOR;
+        string[i] = RECORD_SEPARATOR;
         return 1;
     }
     return 0;
@@ -130,7 +130,7 @@ int update_parser2(char *string, int i, ms_parser_t *parser)
     }
     if (PARSER_ESCAPING(parser))
         return 1;
-    if (which_quote(parser, string[i]))
+    if (which_quote(parser, string, i))
         return 1;
     return 0;
 }
