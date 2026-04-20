@@ -91,10 +91,7 @@ static int get_val_data(int i, var_utils_t *utils, list_t *list,
 int end_of_var(int i, var_utils_t *utils, list_t *list, ms_shell_context_t *ctx)
 {
     if (!utils->str[i + 1] ||
-        !((utils->str[i + 1] >= '0' && utils->str[i + 1] <= '9') ||
-            (utils->str[i + 1] >= 'A' && utils->str[i + 1] <= 'Z') ||
-            (utils->str[i + 1] >= 'a' && utils->str[i + 1] <= 'z')
-            || utils->str[i + 1] == '_')) {
+        !(isalnum(utils->str[i + 1]) || utils->str[i + 1] == '_')) {
         if (get_val_data(i, utils, list, ctx))
             return 84;
     }

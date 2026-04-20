@@ -100,7 +100,6 @@ static void prepare_variables(ms_shell_context_t *context)
 static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 {
     char c;
-    int res = 0;
 
     while (1) {
         display_prompt(context, lined);
@@ -115,7 +114,7 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         msle_add_character(lined, c);
     }
-    return res;
+    return -1;
 }
 
 int main(int argc, char **argv, char **env)

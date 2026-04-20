@@ -43,20 +43,14 @@ SRC_FILENAMES = \
 	ms_var_substitution.c	\
 	my_recalloc.c
 
-#SRC_FILENAMES = ms_var_substitution.c	\
-#				ms_keymap.c	\
-#				my_recalloc.c	\
-#				alloc_filled_str.c
-
 HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h
-CC = epiclang
+CC ?= epiclang
 
 SRC_DIR = src
 OBJ_DIR = build
 LIBS_DIR = lib
 HEADERS_DIR = include
 
-SRC_FILES = $(SRC_FILENAMES:%=$(SRC_DIR)/%)
 OBJ_FILES = $(SRC_FILENAMES:%.c=$(OBJ_DIR)/%.o)
 HEADER_FILES = $(HEADERS:%=$(HEADERS_DIR)/%)
 
