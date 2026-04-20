@@ -8,17 +8,14 @@
 */
 
 #include <ctype.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <stdbool.h>
 #include <string.h>
 
+#include "minishell1.h"
 #include "minishell2.h"
-#include "../include/minishell1.h"
 #include "var_substitution.h"
+#include "benjalib.h"
 
 char *del_start_str(char *str, int amount)
 {
@@ -68,7 +65,7 @@ static void resize_var(int i, char *key, var_utils_t *utils)
 }
 
 static int get_val_data(int i, var_utils_t *utils, list_t *list,
-    keymap_t *keymap)
+    ms_shell_context_t *ctx)
 {
     char *var;
     char *key = NULL;
@@ -79,22 +76,26 @@ static int get_val_data(int i, var_utils_t *utils, list_t *list,
         utils->word_size += i - utils->dollar_pos + 1;
         resize_var(i, key, utils);
         utils->dollar_pos = -1;
-        var = km_get_or_default(key, keymap, NULL);
+        var = km_get_or_default(key, ctx->variables, NULL);
+        if (!var)
+            var = km_get_or_default(key, ctx->env, NULL);
         free(key);
         if (!var)
             return 84;
-        var = alloc_filled_str(var);
+        var = my_strdup(var);
         ll_push(&list, var);
     }
     return 0;
 }
 
-int end_of_var(int i, var_utils_t *utils, list_t *list, keymap_t *keymap)
+int end_of_var(int i, var_utils_t *utils, list_t *list, ms_shell_context_t *ctx)
 {
-    if (!utils->str[i + 1] || utils->str[i + 1] == ' ' ||
-        utils->str[i + 1] == '}' || utils->str[i + 1] == '$' ||
-        utils->str[i + 1] == '\"' || utils->str[i + 1] == '\'') {
-        if (get_val_data(i, utils, list, keymap))
+    if (!utils->str[i + 1] ||
+        !((utils->str[i + 1] >= '0' && utils->str[i + 1] <= '9') ||
+            (utils->str[i + 1] >= 'A' && utils->str[i + 1] <= 'Z') ||
+            (utils->str[i + 1] >= 'a' && utils->str[i + 1] <= 'z')
+            || utils->str[i + 1] == '_')) {
+        if (get_val_data(i, utils, list, ctx))
             return 84;
     }
     return 0;
@@ -130,7 +131,7 @@ static int get_value(int i, var_utils_t *utils, int which_quote, list_t **list)
     return 0;
 }
 
-char *var_sub(char *str, keymap_t *keymap)
+char *var_sub(char *str, ms_shell_context_t *ctx)
 {
     list_t *list = NULL;
     var_utils_t utils = {0};
@@ -140,7 +141,7 @@ char *var_sub(char *str, keymap_t *keymap)
     utils.str = str;
     for (int i = 0; str[i]; i++) {
         each_quote(str[i], &which_quote);
-        if (end_of_var(i, &utils, list, keymap))
+        if (end_of_var(i, &utils, list, ctx))
             return NULL;
         if (get_value(i, &utils, which_quote, &list))
             continue;

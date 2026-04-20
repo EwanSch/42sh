@@ -21,6 +21,6 @@ struct var_utils_s {
 
 void *my_recalloc(void *str, size_t new_size);
 char *alloc_filled_str(char *str);
-char *var_sub(char *str, keymap_t *keymap);
+char *var_sub(char *str, ms_shell_context_t *ctx);
 
 #endif

@@ -33,6 +33,11 @@
     #define DEFAULT_FOLLOWUP_PROMPT "? "
 
     #define MS_VAR_HOME "home"
+    #define MS_VAR_CWD "cwd"
+    #define MS_VAR_PATH "path"
+
+    #define MS_ENV_HOME "HOME"
+    #define MS_ENV_PATH "PATH"
 
 typedef struct ms_parser_s ms_parser_t;
 typedef struct ms_grammar_parser_s ms_grammar_parser_t;

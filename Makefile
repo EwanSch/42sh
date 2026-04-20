@@ -41,8 +41,7 @@ SRC_FILENAMES = \
 	ms_le_keybinds.c \
 	ms_le_tools.c	\
 	ms_var_substitution.c	\
-	my_recalloc.c	\
-	alloc_filled_str.c
+	my_recalloc.c
 
 #SRC_FILENAMES = ms_var_substitution.c	\
 #				ms_keymap.c	\
