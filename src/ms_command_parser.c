@@ -161,8 +161,10 @@ list_t *cut_words(char *string, ms_shell_context_t *context)
     char *var_string = NULL;
 
     var_string = var_sub(string, context);
-    if (!var_string)
+    if (mismatch(string) || !var_string) {
+        context->last_exit_status = 1;
         return NULL;
+    }
     for (int i = 0; var_string[i]; i++) {
         parser.curr_char = i;
         if (is_whitespace(var_string[i]) && !PARSER_ESCAPING(&parser)) {

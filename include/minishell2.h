@@ -178,4 +178,6 @@ int my_strindexof(char const *str, char c);
 
 char *str_destroyer(char *str, int *charac);
 
+int mismatch(char *str);
+
 #endif

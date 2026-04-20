@@ -41,7 +41,8 @@ SRC_FILENAMES = \
 	ms_le_keybinds.c \
 	ms_le_tools.c	\
 	ms_var_substitution.c	\
-	my_recalloc.c
+	my_recalloc.c	\
+	ms_mismatch.c
 
 HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h
 CC ?= epiclang
