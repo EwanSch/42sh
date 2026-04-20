@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include "minishell1.h"
 #include "minishell2.h"
+#include "ms_builtins.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -47,16 +48,11 @@ int run_command(char **args, ms_shell_context_t *context)
 {
     if (!args || !args[0])
         return 0;
-    if (!my_strcmp(args[0], "exit"))
-        return run_exit(args, context);
-    if (!my_strcmp(args[0], "cd"))
-        return run_cd(args, context);
-    if (!my_strcmp(args[0], "setenv"))
-        return ms_env_setenv(args + 1, context);
-    if (!my_strcmp(args[0], "unsetenv"))
-        return ms_env_unset(args + 1, context);
-    if (!my_strcmp(args[0], "env"))
-        return ms_env_show(args + 1, context);
+    for (int i = 0; ms_builtins_list[i].name; i++) {
+        if (my_strcmp(ms_builtins_list[i].name, args[0]) == 0) {
+            return ms_builtins_list[i].callback(context, args + 1);
+        }
+    }
     return run_other(args, context);
 }
 
@@ -82,19 +78,6 @@ static void prepare_variables(ms_shell_context_t *context)
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
 }
-/*
-static int main_loop(ms_shell_context_t *context, linereader_t *lr)
-{
-    if (!lr || !context)
-        return -1;
-    ms_prompt(context, MS_PROMPT_DEFAULT);
-    context->line_buffer = lr_read(lr);
-    if (!context->line_buffer)
-        return -1;
-    context->last_exit_status = process_line_v2(context, context->line_buffer);
-    free(context->line_buffer);
-    return 0;
-}*/
 
 static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 {

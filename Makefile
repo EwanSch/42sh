@@ -15,8 +15,7 @@ SRC_FILENAMES = \
 	ms_utils.c \
 	ms_path_explorer.c \
 	ms_env_manager.c \
-	ms_env_commands.c \
-	ms_dir_commands.c \
+	ms_exe_commands.c \
 	ms_command_parser.c \
 	ms_errors.c \
 	ms_strutils.c \
@@ -38,7 +37,13 @@ SRC_FILENAMES = \
 	ms_le_cmds_movement.c \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
-	ms_le_tools.c
+	ms_le_tools.c \
+	ms_builtins_list.c \
+	builtins/ms_bi_env.c \
+	builtins/ms_bi_setenv.c \
+	builtins/ms_bi_unsetenv.c \
+	builtins/ms_bi_cd.c \
+	builtins/ms_bi_exit.c
 HEADERS = minishell1.h minishell2.h benjalib.h
 
 
@@ -68,7 +73,7 @@ $(NAME): $(OBJ_FILES) $(LIBS_DIR)/$(LIBMY_BIN)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADER_FILES) | $(OBJ_DIR)
 	@echo "[Compiling] $<"
-	@$(CC) $(CFLAGS) -c $< -o $@ $(EXTRA_FLAGS)
+	@mkdir -p `dirname $@` && $(CC) $(CFLAGS) -c $< -o $@ $(EXTRA_FLAGS)
 
 $(LIBS_DIR)/$(LIBMY_BIN):
 	@echo "[Lib] Building $<"
