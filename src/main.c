@@ -24,7 +24,7 @@
 void ms_teardown(ms_shell_context_t *context)
 {
     ms_env_entry_t *entry;
-
+    
     while (context->env) {
         entry = ll_shift(&context->env);
         safe_free(&entry->key);
@@ -74,7 +74,7 @@ int process_line(ms_shell_context_t *context, char *line)
     tokens = cut_words(expanded);
     free(expanded);
     if (!tokens)
-        return 1;
+        return 1;   
     return ms_runner(tokens, context);
 }
 
@@ -85,6 +85,19 @@ static void prepare_variables(ms_shell_context_t *context, char **argv,
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
     km_set(MS_VAR_ADDSUFFIX, NULL, &context->variables);
     km_set(MS_VAR_ARGV, NULL, &context->variables);
+    km_set(MS_VAR_AUTOLOGOUT, NULL, &context->variables);
+    km_set(MS_VAR_HOME, km_get_or_default(MS_ENV_HOME, context->env, NULL),
+        &context->variables);
+    km_set(MS_VAR_PATH, km_get_or_default(MS_ENV_PATH, context->env, NULL),
+        &context->variables);
+    km_set(MS_VAR_GROUP, km_get_or_default(MS_ENV_GROUP, context->env, NULL),
+        &context->variables);
+    km_set(MS_VAR_SHLVL, km_get_or_default(MS_ENV_SHLVL, context->env, NULL),
+        &context->variables);
+    km_set(MS_VAR_USER, km_get_or_default(MS_ENV_USER, context->env, NULL),
+        &context->variables);
+    km_set(MS_VAR_SHELL, "/bin/tcsh", &context->variables);
+    km_set(MS_VAR_STATUS, "0", &context->variables);
     set_term_variable(context);
     set_cwd_variable(context);
     save_argv(context, argv, argc);

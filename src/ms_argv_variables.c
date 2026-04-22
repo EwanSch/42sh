@@ -14,11 +14,14 @@
 #include "minishell2.h"
 #include "shell.h"
 
-static void check_flag_argv(char **argv, int *total, int *nb)
+static void check_flag_argv(ms_shell_context_t *context, char **argv,
+    int *total, int *nb)
 {
     if (argv[*total][0] == '-') {
-        if (argv[*total][1] == 'c')
+        if (argv[*total][1] == 'c') {
+            km_set("command", argv[*total + 1], &context->variables);
             *total += 1;
+        }
         *nb += 1;
     }
 }
@@ -32,7 +35,7 @@ void save_argv(ms_shell_context_t *context, char **argv, int argc)
 
     for (; total < argc; total++) {
         nb = 0;
-        check_flag_argv(argv, &total, &nb);
+        check_flag_argv(context, argv, &total, &nb);
         if (nb == 1)
             continue;
         snprintf(buffer, sizeof(buffer), "argv[%d]", nb_argv);
