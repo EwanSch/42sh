@@ -9,6 +9,7 @@
 #
 
 NAME = 42sh
+
 SRC_FILENAMES = \
 	main.c \
 	ms_explode.c \
@@ -38,16 +39,19 @@ SRC_FILENAMES = \
 	ms_le_cmds_movement.c \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
-	ms_le_tools.c
-HEADERS = minishell1.h minishell2.h benjalib.h
+	ms_le_tools.c	\
+	ms_var_substitution.c	\
+	my_recalloc.c	\
+	ms_mismatch.c
 
+HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h
+CC ?= epiclang
 
 SRC_DIR = src
 OBJ_DIR = build
 LIBS_DIR = lib
 HEADERS_DIR = include
 
-SRC_FILES = $(SRC_FILENAMES:%=$(SRC_DIR)/%)
 OBJ_FILES = $(SRC_FILENAMES:%.c=$(OBJ_DIR)/%.o)
 HEADER_FILES = $(HEADERS:%=$(HEADERS_DIR)/%)
 
@@ -55,7 +59,7 @@ LIBMY_DIR = $(LIBS_DIR)/benjalib
 LIBMY_MAKE = $(MAKE) --no-print-directory -C $(LIBMY_DIR)
 LIBMY_BIN = libbenja.a
 
-CFLAGS += -I$(HEADERS_DIR)
+CFLAGS += -g -I$(HEADERS_DIR)
 LINKER_DIRS += -Llib
 LINKER_FLAGS += -lbenja
 

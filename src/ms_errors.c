@@ -58,3 +58,9 @@ int ms_fail(ms_shell_context_t *context, ms_error_t error)
         my_dprintf(2, "%s\n", script_errs[error]);
     return MYSH_ERROR;
 }
+
+int ms_error(char *error)
+{
+    my_dprintf(2, "%s\n", error);
+    return MYSH_ERROR;
+}

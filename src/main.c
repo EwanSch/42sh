@@ -70,36 +70,36 @@ int process_line(ms_shell_context_t *context, char *line)
     expanded = expand_paths(line, context);
     if (!expanded)
         return 1;
-    tokens = cut_words(expanded);
+    tokens = cut_words(expanded, context);
     free(expanded);
     if (!tokens)
         return 1;
     return ms_runner(tokens, context);
 }
 
+static void env_to_var(char const *env_name, char const *var_name,
+    char *default_value, ms_shell_context_t *ctx)
+{
+    char const *value = km_get_or_default(env_name, ctx->env, default_value);
+
+    km_set(var_name, value, &ctx->variables);
+}
+
 static void prepare_variables(ms_shell_context_t *context)
 {
+    char *cwd = getcwd(NULL, 0);
+
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
+    km_set(MS_VAR_CWD, cwd, &context->variables);
+    env_to_var(MS_ENV_HOME, MS_VAR_HOME, NULL, context);
+    env_to_var(MS_ENV_PATH, MS_VAR_PATH, "/usr/bin:/bin", context);
+    free(cwd);
 }
-/*
-static int main_loop(ms_shell_context_t *context, linereader_t *lr)
-{
-    if (!lr || !context)
-        return -1;
-    ms_prompt(context, MS_PROMPT_DEFAULT);
-    context->line_buffer = lr_read(lr);
-    if (!context->line_buffer)
-        return -1;
-    context->last_exit_status = process_line_v2(context, context->line_buffer);
-    free(context->line_buffer);
-    return 0;
-}*/
 
 static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 {
     char c;
-    int res = 0;
 
     while (1) {
         display_prompt(context, lined);
@@ -114,7 +114,7 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         msle_add_character(lined, c);
     }
-    return res;
+    return -1;
 }
 
 int main(int argc, char **argv, char **env)
