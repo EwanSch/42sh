@@ -93,7 +93,7 @@ static void prepare_variables(ms_shell_context_t *context)
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
     km_set(MS_VAR_CWD, cwd, &context->variables);
     env_to_var(MS_ENV_HOME, MS_VAR_HOME, NULL, context);
-    env_to_var(MS_ENV_PATH, MS_VAR_PATH, "/usr/bin", context);
+    env_to_var(MS_ENV_PATH, MS_VAR_PATH, "/usr/bin:/bin", context);
     free(cwd);
 }
 
