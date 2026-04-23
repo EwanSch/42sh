@@ -54,7 +54,7 @@ char *list_to_str(list_t *list)
     return str;
 }
 
-static void resize_var(int i, char *key, var_utils_t *utils)
+static int resize_var(int i, char *key, var_utils_t *utils)
 {
     if (key[1] == '{' && utils->str[i + 1] == '}') {
         del_start_str(key, 2);
@@ -62,6 +62,20 @@ static void resize_var(int i, char *key, var_utils_t *utils)
         utils->word_size++;
     } else
         del_start_str(key, 1);
+    return 0;
+}
+
+int var_from_km(char *var, char **key, ms_shell_context_t *ctx)
+{
+    if (!var)
+        var = km_get_or_default(*key, ctx->env, NULL);
+    if (!var) {
+        printf("%s: Undefined variable.\n", *key);
+        free(*key);
+        return 84;
+    }
+    free(*key);
+    return 0;
 }
 
 static int get_val_data(int i, var_utils_t *utils, list_t *list,
@@ -74,13 +88,11 @@ static int get_val_data(int i, var_utils_t *utils, list_t *list,
         key = strndup(&utils->str[utils->dollar_pos],
             i - utils->dollar_pos + 1);
         utils->word_size += i - utils->dollar_pos + 1;
-        resize_var(i, key, utils);
+        if (resize_var(i, key, utils))
+            return 84;
         utils->dollar_pos = -1;
         var = km_get_or_default(key, ctx->variables, NULL);
-        if (!var)
-            var = km_get_or_default(key, ctx->env, NULL);
-        free(key);
-        if (!var)
+        if (var_from_km(var, &key, ctx))
             return 84;
         var = my_strdup(var);
         ll_push(&list, var);
@@ -88,7 +100,8 @@ static int get_val_data(int i, var_utils_t *utils, list_t *list,
     return 0;
 }
 
-int end_of_var(int i, var_utils_t *utils, list_t *list, ms_shell_context_t *ctx)
+static int end_of_var(int i, var_utils_t *utils,
+    list_t *list, ms_shell_context_t *ctx)
 {
     if (!utils->str[i + 1] ||
         !(isalnum(utils->str[i + 1]) || utils->str[i + 1] == '_')) {
@@ -117,7 +130,7 @@ void each_quote(char str, int *which_quote)
 static int get_value(int i, var_utils_t *utils, int which_quote, list_t **list)
 {
     if (utils->str[i] == '$' && which_quote != 1) {
-        if (utils->str[i + 1] == '\0' || utils->str[i + 1] == ' ') {
+        if (utils->str[i + 1] == '\n' || utils->str[i + 1] == ' ') {
             return 1;
         }
         ll_push(list, strndup(&utils->str[utils->word_size],
