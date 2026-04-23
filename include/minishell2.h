@@ -180,4 +180,8 @@ char *str_destroyer(char *str, int *charac);
 
 int mismatch(char *str);
 
+bool is_alias(ms_grammar_parser_t *grammar);
+char *ll_to_str(list_t **ll, char *in_btw);
+
+
 #endif

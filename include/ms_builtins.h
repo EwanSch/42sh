@@ -25,5 +25,7 @@ int ms_bi_cd(ms_shell_context_t *context, char **argv);
 int ms_bi_env(ms_shell_context_t *context, char **argv);
 int ms_bi_setenv(ms_shell_context_t *context, char **argv);
 int ms_bi_unsetenv(ms_shell_context_t *context, char **argv);
+int ms_bi_alias(ms_shell_context_t *context, char **argv);
+int ms_bi_unalias(ms_shell_context_t *context, char **argv);
 
 #endif

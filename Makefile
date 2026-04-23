@@ -44,9 +44,11 @@ SRC_FILENAMES = \
 	builtins/ms_bi_setenv.c \
 	builtins/ms_bi_unsetenv.c \
 	builtins/ms_bi_cd.c \
+	builtins/ms_bi_alias.c	\
+	builtins/ms_bi_unalias.c	\
 	builtins/ms_bi_exit.c	\
-	ms_le_tools.c	\
 	ms_var_substitution.c	\
+	ll_to_str.c	\
 	my_recalloc.c	\
 	ms_mismatch.c
 

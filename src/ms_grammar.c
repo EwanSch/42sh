@@ -137,6 +137,7 @@ static bool parse_simple_command(ms_grammar_parser_t *grammar,
         return false;
     if (gr_at_end(grammar))
         return true;
+    while (is_alias(grammar));
     while (1) {
         if (parse_redirection(grammar, parent))
             continue;

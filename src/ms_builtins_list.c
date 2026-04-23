@@ -17,5 +17,7 @@ const ms_builtin_t ms_builtins_list[] = {
     { "setenv", &ms_bi_setenv },
     { "unsetenv", &ms_bi_unsetenv },
     { "exit", &ms_bi_exit },
+    {"alias", &ms_bi_alias},
+    {"unalias", &ms_bi_unalias},
     { NULL, NULL }
 };

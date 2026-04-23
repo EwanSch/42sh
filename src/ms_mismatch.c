@@ -13,13 +13,16 @@
 
 #include "minishell1.h"
 
-static void find_match(char *str, int *stay, int i, char search)
+static int find_match(char *str, int *stay, int i, char search)
 {
     if (*stay || str[i] == search) {
         *stay = 1;
-        if (str[i + 1] == search)
-            return;
+        if (str[i + 1] == search) {
+            *stay = 0;
+            return 1;
+        }
     }
+    return 0;
 }
 
 int check_for_match(char *str, char search)
@@ -27,7 +30,8 @@ int check_for_match(char *str, char search)
     int stay = 0;
 
     for (int i = 0; str[i]; i++) {
-        find_match(str, &stay, i, search);
+        if (find_match(str, &stay, i, search))
+            break;
     }
     return stay ? 1 : 0;
 }
