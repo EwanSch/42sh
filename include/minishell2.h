@@ -33,6 +33,11 @@
     #define DEFAULT_FOLLOWUP_PROMPT "? "
 
     #define MS_VAR_HOME "home"
+    #define MS_VAR_CWD "cwd"
+    #define MS_VAR_PATH "path"
+
+    #define MS_ENV_HOME "HOME"
+    #define MS_ENV_PATH "PATH"
 
 typedef struct ms_parser_s ms_parser_t;
 typedef struct ms_grammar_parser_s ms_grammar_parser_t;
@@ -94,6 +99,8 @@ typedef struct {
 
 struct ms_parser_s {
     bool backslashed;
+    int curr_char;
+    char *str_buf;
     ms_quote_mode_t quote_mode;
     list_t *tokens;
 };
@@ -115,6 +122,7 @@ struct ms_syntax_tree_s {
 int ms_fail(ms_shell_context_t *context, ms_error_t error);
 int ms_fail_parse(ms_shell_context_t *context, ms_error_t error,
     ms_token_t *token);
+int ms_error(char *error);
 
 // LineReader util
 linereader_t *lr_new(const char *filename);
@@ -157,7 +165,7 @@ int ms_prompt(ms_shell_context_t *context, char *type);
 int pipeline_handler(ms_syntax_tree_t *node, ms_shell_context_t *context);
 
 // Lexing
-list_t *cut_words(char *string);
+list_t *cut_words(char *string, ms_shell_context_t *context);
 
 // Path expansion
 char *expand_paths(char *string, ms_shell_context_t *ctx);
@@ -167,5 +175,9 @@ int visit_redirection(ms_syntax_tree_t *node,
     ms_shell_context_t *context, int *fdin, int *fdout);
 
 int my_strindexof(char const *str, char c);
+
+char *str_destroyer(char *str, int *charac);
+
+int mismatch(char *str);
 
 #endif

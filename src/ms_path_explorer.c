@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include "minishell1.h"
+#include "minishell2.h"
 
 int is_file_in_dir(char *dir, char *search)
 {
@@ -38,7 +39,7 @@ int is_file_in_dir(char *dir, char *search)
 
 int get_cmd_path(ms_shell_context_t *context, char *search, char *full_path)
 {
-    char *path = km_get_or_default(MYSH_PATH_ENV, context->env, NULL);
+    char const *path = km_get_or_default(MS_VAR_PATH, context->variables, NULL);
     char **path_dirs = my_explode(path, ":");
 
     if (!path || !path_dirs)
