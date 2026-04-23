@@ -37,6 +37,14 @@ typedef struct km_entry_s km_entry_t;
 typedef list_t keymap_t;
 typedef struct ms_line_editor_s ms_line_editor_t;
 typedef struct ms_editor_command_s ms_editor_command_t;
+typedef struct alias_s alias_t;
+
+
+struct alias_s {
+    char *name;
+    char *alias;
+    struct alias_s *next;
+};
 
 struct ms_env_entry_s {
     char *key;
@@ -62,6 +70,7 @@ struct ms_shell_context_s {
     char *history[50];
     int history_index;
     char *last_working_dir;
+    alias_t *alias;
     keymap_t *variables;
     keymap_t *env;
     linereader_t *reader;
