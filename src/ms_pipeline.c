@@ -15,6 +15,40 @@
 #include "minishell2.h"
 #include "benjalib.h"
 
+static void complete_token(list_t **head, list_t *temp)
+{
+    while (*head) {
+        if (((ms_token_t *) (*head)->data)->type == MS_TOKEN_EOF) {
+            *head = temp;
+            return;
+        }
+        head = &(*head)->next;
+    }
+}
+
+bool is_alias(ms_grammar_parser_t *grammar)
+{
+    alias_t **buf = &grammar->ctx_ref->alias;
+    list_t **head = &grammar->tokens;
+    list_t *temp;
+    ms_token_t *tok = NULL;
+
+    while (*buf) {
+        tok = grammar->tokens->data;
+        if (my_strcmp(tok->type == MS_TOKEN_WORD ?
+                tok->word_value : NULL, (*buf)->alias)) {
+            buf = &(*buf)->next;
+            continue;
+        }
+        gr_consume(grammar);
+        temp = *head;
+        *head = cut_words((*buf)->name, grammar->ctx_ref);
+        complete_token(head, temp);
+        return 1;
+    }
+    return 0;
+}
+
 static pid_t forked_simple_command(ms_syntax_tree_t *node,
     ms_shell_context_t *context, int fdin, int fdout)
 {

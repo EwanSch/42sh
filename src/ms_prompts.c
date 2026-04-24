@@ -38,7 +38,7 @@ static int expand_prompt_sequence(char sequence, ms_shell_context_t *context)
     }
 }
 
-static int ms_write_prompt(char *prompt, ms_shell_context_t *context)
+static int ms_write_prompt(char const *prompt, ms_shell_context_t *context)
 {
     bool percent = false;
 
@@ -59,7 +59,7 @@ static int ms_write_prompt(char *prompt, ms_shell_context_t *context)
 
 int ms_prompt(ms_shell_context_t *context, char *type)
 {
-    char *prompt;
+    char const *prompt;
 
     if (!context)
         return 1;
