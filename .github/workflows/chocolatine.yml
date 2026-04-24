@@ -1,0 +1,72 @@
+name: Check compilation and coding style
+
+on:
+  push:
+    branches-ignore:
+      - no-ga/*
+  pull_request:
+    branches-ignore:
+      - no-ga/*
+
+env:
+  EXECUTABLES: "42sh"
+
+jobs:
+  check_compilation_and_coding_style:
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    env:
+      CC: epiclang
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run banana check
+        run: banana-check-repo || true
+
+      - name: Compile project
+        run: make 2>stderr.log; grep "Banana" stderr.log > banana.log || true
+        timeout-minutes: 2
+
+      - name: Show coding style errors
+        run: |
+          if [ -s banana.log ]; then
+            while IFS= read -r line; do
+              file=$(echo "$line" | cut -d':' -f1)
+              lineindex=$(echo "$line" | cut -d':' -f2)
+              col=$(echo "$line" | cut -d':' -f3)
+              msg=$(echo "$line" | cut -d':' -f5-)
+              echo "::error file=$file,line=$lineindex,col=$col,title=Coding Style Error::$msg"
+            done < banana.log
+            exit 1
+          fi
+
+      - name: Clean project
+        run: make clean
+
+      - name: Check executables
+        run: |
+          for exe in $EXECUTABLES; do
+            if [ ! -x "$exe" ]; then
+              echo "Executable $exe is missing or not executable"
+              exit 1
+            fi
+          done
+
+  run_tests:
+    needs: check_compilation_and_coding_style
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: epitechcontent/epitest-docker
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run unit tests
+        run: make tests_run
+        timeout-minutes: 2
+
