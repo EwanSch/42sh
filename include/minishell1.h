@@ -136,6 +136,8 @@ void msle_move_right(ms_line_editor_t *lined, int mod, int payload);
 void msle_move_start(ms_line_editor_t *lined, int mod, int payload);
 void msle_move_end(ms_line_editor_t *lined, int mod, int payload);
 void msle_misc_codepoint(ms_line_editor_t *lined, int mod, int payload);
+char *expand_history(char *line, ms_shell_context_t *context);
+void fill_the_history(ms_shell_context_t *context, ms_line_editor_t *lined);
 
 // Line Editor Keybinds
 void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined);
@@ -150,7 +152,6 @@ void msle_add_character(ms_line_editor_t *lined, char c);
 int msle_special_key(ms_shell_context_t *ctx, ms_line_editor_t *lined, char c);
 
 // Line Editor Escape Sequences
-
 void msle_read_full_escape(char *sequence, int seq_size, int *i);
 void msle_escape_seq_action(ms_line_editor_t *lined, char *seq, int mod);
 int msle_get_modifier_key(char *sequence);

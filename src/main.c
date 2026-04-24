@@ -65,6 +65,7 @@ int process_line(ms_shell_context_t *context, char *line)
     list_t *tokens;
     char *expanded;
 
+    line = expand_history(line, context);
     if (!context || !line)
         return 1;
     expanded = expand_paths(line, context);

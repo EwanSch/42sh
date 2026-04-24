@@ -29,6 +29,7 @@ void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined)
     lined->bufsize = 0;
     lined->history_index = 0;
     my_fputs(1, "\n");
+    fill_the_history(context, lined);
     process_line(context, lined->history[1]);
 }
 

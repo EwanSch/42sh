@@ -34,6 +34,8 @@
 
     #define MS_VAR_HOME "home"
 
+    #define MS_NO_HISTORY "0: Event not found."
+
 typedef struct ms_parser_s ms_parser_t;
 typedef struct ms_grammar_parser_s ms_grammar_parser_t;
 typedef struct ms_syntax_tree_s ms_syntax_tree_t;
@@ -169,3 +171,5 @@ int visit_redirection(ms_syntax_tree_t *node,
 int my_strindexof(char const *str, char c);
 
 #endif
+
+// right here to edit
