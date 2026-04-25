@@ -14,7 +14,7 @@ void fill_the_history(ms_shell_context_t *ctx, char *line)
 {
     if (!line || line[0] == '\0')
         return;
-    if (ctx->history_index > 0 && 
+    if (ctx->history_index > 0 &&
         my_strcmp(ctx->history[ctx->history_index - 1], line) == 0) {
         return;
     }
