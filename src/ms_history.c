@@ -10,8 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// =================================================================================== file separator
-// =================================================================================== file separator
 void fill_the_history(ms_shell_context_t *ctx, char *line)
 {
     if (!line || line[0] == '\0')
