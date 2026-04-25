@@ -147,7 +147,7 @@ void msle_move_start(ms_line_editor_t *lined, int mod, int payload);
 void msle_move_end(ms_line_editor_t *lined, int mod, int payload);
 void msle_misc_codepoint(ms_line_editor_t *lined, int mod, int payload);
 char *expand_history(char *line, ms_shell_context_t *context);
-void fill_the_history(ms_shell_context_t *context, ms_line_editor_t *lined);
+void fill_the_history(ms_shell_context_t *context, char *line);
 
 // Line Editor Keybinds
 void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined);
