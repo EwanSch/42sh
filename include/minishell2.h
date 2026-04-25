@@ -187,5 +187,3 @@ char *ll_to_str(list_t **ll, char *in_btw);
 
 
 #endif
-
-// right here to edit
