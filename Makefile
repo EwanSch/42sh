@@ -38,8 +38,16 @@ SRC_FILENAMES = \
 	ms_le_cmds_movement.c \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
-	ms_le_tools.c
-HEADERS = minishell1.h minishell2.h benjalib.h
+	ms_le_tools.c	\
+	ms_fs_glob_apply.c	\
+	ms_fs_glob_expand.c	\
+	ms_fs_glob_brace_expand.c	\
+	ms_fs_glob_read.c	\
+	ms_fs_glob_match.c	\
+	ms_fs_glob_range_match.c	\
+	ms_fs_glob_pattern.c	\
+	ms_fs_glob_utils.c
+HEADERS = minishell1.h minishell2.h benjalib.h globbing.h
 
 
 SRC_DIR = src

@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include "minishell1.h"
 #include "minishell2.h"
+#include "globbing.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -74,6 +75,7 @@ int process_line(ms_shell_context_t *context, char *line)
     free(expanded);
     if (!tokens)
         return 1;
+    apply_globbing(&tokens, context);
     return ms_runner(tokens, context);
 }
 
