@@ -62,7 +62,7 @@ int process_line(ms_shell_context_t *context, char *line)
     char *expanded;
 
     line = expand_history(line, context);
-    if (!context || !line)
+    if (!context || !line || check_display(line, context))
         return 1;
     fill_the_history(context, line);
     expanded = expand_paths(line, context);

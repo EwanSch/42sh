@@ -22,7 +22,7 @@ void fill_the_history(ms_shell_context_t *ctx, char *line)
     ctx->history_index++;
 }
 
-static int check_display(char *line, ms_shell_context_t *ctx)
+int check_display(char *line, ms_shell_context_t *ctx)
 {
     if (my_strcmp(line, "history") == 0) {
         fill_the_history(ctx, line);
@@ -34,20 +34,56 @@ static int check_display(char *line, ms_shell_context_t *ctx)
     return 0;
 }
 
+static int no_history(char *line, ms_shell_context_t *ctx)
+{
+    if (ctx->history_index == 0) {
+        my_dprintf(2, MS_NO_HISTORY, ctx->history_index);
+        return 1;
+    }
+    return 0;
+}
+
+static char *single_case(char *line, ms_shell_context_t *ctx)
+{
+    if (no_history(line, ctx))
+        return NULL;
+    free(line);
+    line = NULL;
+    line = my_strdup(ctx->history[ctx->history_index - 1]);
+    return line;
+}
+
+static char *replace_str(char *str, char *to_replace, char *replacement)
+{
+    char buffer[MAX_CMD] = {0};
+    char *part = my_strstr(str, to_replace);
+
+    if (!part)
+        return my_strdup(str);
+    my_strncpy(buffer, str, part - str);
+    buffer[part - str] = '\0';
+    my_strcat(buffer, replacement);
+    my_strcat(buffer, part + my_strlen(to_replace));
+    return my_strdup(buffer);
+}
+
 char *expand_history(char *line, ms_shell_context_t *ctx)
 {
+    char *last_cmd = NULL;
+    char *new_line = NULL;
+
     if (!line)
         return NULL;
-    if (my_strcmp(line, "!!") == 0) {
-        if (ctx->history_index == 0) {
-            my_dprintf(2, MS_NO_HISTORY, ctx->history_index);
+    if (my_strcmp(line, HISTORY_CMD) == 0)
+        return single_case(line, ctx);
+    if (my_strstr(line, HISTORY_CMD) != NULL) {
+        if (no_history(line, ctx))
             return NULL;
-        }
-        free(line);
-        line = NULL;
-        line = my_strdup(ctx->history[ctx->history_index - 1]);
-    }
-    if (check_display(line, ctx))
-        return NULL;
+        last_cmd = ctx->history[ctx->history_index - 1];
+        new_line = replace_str(line, HISTORY_CMD, last_cmd);
+    } else
+        return line;
+    free(line);
+    line = new_line;
     return line;
 }
