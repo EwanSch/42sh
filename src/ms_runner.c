@@ -100,12 +100,19 @@ static int visit_pipeline(ms_syntax_tree_t *node, ms_shell_context_t *context)
 static int visit_and_or(ms_syntax_tree_t *node, ms_shell_context_t *context)
 {
     ms_syntax_tree_t *child;
+    ms_token_t *token;
     int res = 0;
 
-    while (node->children && res == 0) {
+    while (node->children) {
         child = ll_shift(&node->children);
         if (child->type == MS_TREE_PIPELINE)
             res = visit_pipeline(child, context);
+        token = ll_shift(&node->children);
+        if (!token)
+            break;
+        if ((token->type == MS_TOKEN_AND && res != 0) ||
+            (token->type == MS_TOKEN_OR && res == 0))
+            return res;
     }
     return res;
 }
