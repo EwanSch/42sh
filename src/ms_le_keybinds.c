@@ -47,5 +47,4 @@ void msle_hit_backspace(ms_line_editor_t *lined)
 
 void msle_hit_tab(ms_line_editor_t *lined)
 {
-    write(1, "\t", 1);
 }

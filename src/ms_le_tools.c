@@ -76,10 +76,12 @@ int msle_special_key(ms_shell_context_t *ctx, ms_line_editor_t *lined, char c)
         case '\n':
             msle_hit_enter(ctx, lined);
             return 1;
-        case '\t':
-            msle_hit_tab(lined);
-            return 1;
         default:
             return 0;
     }
 }
+/*
+case '\t':
+msle_hit_tab(lined);
+return 1;
+*/
