@@ -11,9 +11,11 @@ static int handle_star(const char *p, const char *s, int i, int j)
 {
     if (!p[i + 1])
         return 1;
-    for (; s[j]; j++)
+    while (s[j]) {
         if (glob_match(p + i + 1, s + j))
             return 1;
+        j++;
+    }
     return 0;
 }
 
@@ -28,8 +30,7 @@ static int handle_bracket(const char *p, const char *s, int *i, int *j)
 
 static int match_char(const char *p, const char *s, int *i, int *j)
 {
-    if (p[*i] == '?')
-    {
+    if (p[*i] == '?') {
         if (!s[*j])
             return 0;
         (*i)++;
@@ -50,8 +51,7 @@ int glob_match(const char *p, const char *s)
     int i = 0;
     int j = 0;
 
-    while (p[i])
-    {
+    while (p[i]) {
         if (p[i] == '*')
             return handle_star(p, s, i, j);
         if (!match_char(p, s, &i, &j))

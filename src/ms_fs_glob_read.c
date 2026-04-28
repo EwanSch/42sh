@@ -7,15 +7,30 @@
 
 #include "globbing.h"
 
+static int should_skip(struct dirent *dp, char *pattern)
+{
+    if (dp->d_name[0] == '.' && pattern[0] != '.')
+        return 1;
+    return 0;
+}
+
+static int is_match(struct dirent *dp, char *pattern)
+{
+    if (should_skip(dp, pattern))
+        return 0;
+    if (!glob_match(pattern, dp->d_name))
+        return 0;
+    return 1;
+}
+
 static void fill_matches(DIR *dir, char *pattern, list_t **lst)
 {
-    struct dirent *dp;
+    struct dirent *dp = readdir(dir);
 
-    while ((dp = readdir(dir))) {
-        if (dp->d_name[0] == '.' && pattern[0] != '.')
-            continue;
-        if (glob_match(pattern, dp->d_name))
+    while (dp) {
+        if (is_match(dp, pattern))
             ll_push(lst, my_strdup(dp->d_name));
+        dp = readdir(dir);
     }
 }
 

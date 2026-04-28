@@ -21,6 +21,12 @@
     #include "minishell1.h"
     #include "minishell2.h"
 
+typedef struct brace_s {
+    const char *pattern;
+    char *open;
+    char *close;
+} brace_t;
+
 int is_glob_pattern(const char *str);
 void apply_globbing(list_t **tokens, ms_shell_context_t *ctx);
 
