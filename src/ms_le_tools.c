@@ -25,6 +25,9 @@ void msle_refresh_cursor_position(ms_line_editor_t *lined)
 void display_prompt(ms_shell_context_t *context, ms_line_editor_t *lineed)
 {
     ms_prompt(context, MS_PROMPT_DEFAULT);
+    if (lineed->input_buffer)
+        my_putstr(lineed->input_buffer);
+    my_putstr("\x1b[K");
     msle_refresh_cursor_position(lineed);
 }
 
