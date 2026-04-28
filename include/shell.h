@@ -41,4 +41,6 @@ int command_eof(char c, ms_shell_context_t *context);
 
 void save_argv(ms_shell_context_t *context, char **argv, int argc);
 
+int is_builtin(ms_shell_context_t *context, char *args);
+
 #endif

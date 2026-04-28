@@ -20,6 +20,7 @@
 #include "minishell1.h"
 #include "minishell2.h"
 #include "shell.h"
+#include "ms_builtins.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -48,20 +49,11 @@ int run_command(char **args, ms_shell_context_t *context)
 {
     if (!args || !args[0])
         return 0;
-    if (!my_strcmp(args[0], "exit"))
-        return run_exit(args, context);
-    if (!my_strcmp(args[0], "cd"))
-        return run_cd(args, context);
-    if (!my_strcmp(args[0], "setenv"))
-        return ms_env_setenv(args + 1, context);
-    if (!my_strcmp(args[0], "unsetenv"))
-        return ms_env_unset(args + 1, context);
-    if (!my_strcmp(args[0], "env"))
-        return ms_env_show(args + 1, context);
-    if (!my_strcmp(args[0], "which"))
-        return run_which(args, context);
-    if (!my_strcmp(args[0], "where"))
-        return run_where(args, context);
+    for (int i = 0; ms_builtins_list[i].name; i++) {
+        if (my_strcmp(ms_builtins_list[i].name, args[0]) == 0) {
+            return ms_builtins_list[i].callback(context, args + 1);
+        }
+    }
     return run_other(args, context);
 }
 
@@ -75,16 +67,26 @@ int process_line(ms_shell_context_t *context, char *line)
     expanded = expand_paths(line, context);
     if (!expanded)
         return 1;
-    tokens = cut_words(expanded);
+    tokens = cut_words(expanded, context);
     free(expanded);
     if (!tokens)
         return 1;
     return ms_runner(tokens, context);
 }
 
+static void env_to_var(char *env_name, char *var_name,
+    char *default_value, ms_shell_context_t *ctx)
+{
+    char *value = km_get_or_default(env_name, ctx->env, default_value);
+
+    km_set(var_name, value, &ctx->variables);
+}
+
 static void prepare_variables(ms_shell_context_t *context, char **argv,
     int argc)
 {
+    char *cwd = getcwd(NULL, 0);
+
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
     km_set(MS_VAR_ADDSUFFIX, NULL, &context->variables);
@@ -106,24 +108,10 @@ static void prepare_variables(ms_shell_context_t *context, char **argv,
     set_cwd_variable(context);
     save_argv(context, argv, argc);
 }
-/*
-static int main_loop(ms_shell_context_t *context, linereader_t *lr)
-{
-    if (!lr || !context)
-        return -1;
-    ms_prompt(context, MS_PROMPT_DEFAULT);
-    context->line_buffer = lr_read(lr);
-    if (!context->line_buffer)
-        return -1;
-    context->last_exit_status = process_line_v2(context, context->line_buffer);
-    free(context->line_buffer);
-    return 0;
-}*/
 
 static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 {
     char c;
-    int res = 0;
 
     while (1) {
         display_prompt(context, lined);
@@ -140,7 +128,7 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         msle_add_character(lined, c);
     }
-    return res;
+    return -1;
 }
 
 int main(int argc, char **argv, char **env)

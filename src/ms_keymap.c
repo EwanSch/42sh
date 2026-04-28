@@ -15,7 +15,8 @@
 
 #include "minishell1.h"
 
-static char *km_get_internal(char *key, keymap_t *keymap, bool allow_empty)
+static char *km_get_internal(char const *key, keymap_t *keymap,
+    bool allow_empty)
 {
     ms_env_entry_t *entry;
 
@@ -39,13 +40,14 @@ char *km_get(char *key, keymap_t *keymap)
     return km_get_internal(key, keymap, true);
 }
 
-char *km_get_or_default(char *key, keymap_t *keymap, char *deflt)
+char *km_get_or_default(char *key, keymap_t *keymap,
+    char *def)
 {
     char *value = km_get_internal(key, keymap, false);
 
     if (value)
         return value;
-    return deflt;
+    return def;
 }
 
 void km_set(char *key, char *value, keymap_t **keymap)
