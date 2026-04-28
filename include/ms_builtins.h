@@ -10,6 +10,15 @@
 #ifndef MS_BUILTINS_H
     #define MS_BUILTINS_H
 
+    #define OPE_EQUAL "=="
+    #define OPE_DIFF "!="
+
+    #define OPE_ADD "+"
+    #define OPE_SUS "-"
+    #define OPE_MULT "*"
+    #define OPE_DIV "/"
+    #define OPE_MOD "%"
+
     #include "minishell1.h"
 
 typedef struct {
@@ -27,5 +36,6 @@ int ms_bi_setenv(ms_shell_context_t *context, char **argv);
 int ms_bi_unsetenv(ms_shell_context_t *context, char **argv);
 int ms_bi_alias(ms_shell_context_t *context, char **argv);
 int ms_bi_unalias(ms_shell_context_t *context, char **argv);
+int ms_bi_if(ms_shell_context_t *ctx, char **args);
 
 #endif
