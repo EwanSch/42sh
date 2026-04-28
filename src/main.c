@@ -24,7 +24,7 @@
 void ms_teardown(ms_shell_context_t *context)
 {
     ms_env_entry_t *entry;
-    
+
     while (context->env) {
         entry = ll_shift(&context->env);
         safe_free(&entry->key);
@@ -58,6 +58,10 @@ int run_command(char **args, ms_shell_context_t *context)
         return ms_env_unset(args + 1, context);
     if (!my_strcmp(args[0], "env"))
         return ms_env_show(args + 1, context);
+    if (!my_strcmp(args[0], "which"))
+        return run_which(args, context);
+    if (!my_strcmp(args[0], "where"))
+        return run_where(args, context);
     return run_other(args, context);
 }
 
@@ -74,7 +78,7 @@ int process_line(ms_shell_context_t *context, char *line)
     tokens = cut_words(expanded);
     free(expanded);
     if (!tokens)
-        return 1;   
+        return 1;
     return ms_runner(tokens, context);
 }
 
