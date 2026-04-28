@@ -105,9 +105,6 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             break;
         if (msle_special_key(context, lined, c))
             continue;
-        if ((lined->text_len + 1) >= lined->bufsize &&
-            msle_extend_input_buffer(lined))
-            continue;
         msle_add_character(lined, c);
     }
     return -1;

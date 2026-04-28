@@ -47,7 +47,7 @@ int msle_extend_input_buffer(ms_line_editor_t *lined)
 
 void msle_add_character(ms_line_editor_t *lined, char const c)
 {
-    if (lined->caret_pos >= lined->bufsize) {
+    if (lined->text_len >= lined->bufsize) {
         if (msle_extend_input_buffer(lined))
             return;
     }
