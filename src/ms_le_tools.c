@@ -10,6 +10,7 @@
 */
 
 #include "minishell1.h"
+#include "minishell2.h"
 
 void msle_refresh_cursor_position(ms_line_editor_t *lined)
 {
@@ -23,13 +24,7 @@ void msle_refresh_cursor_position(ms_line_editor_t *lined)
 
 void display_prompt(ms_shell_context_t *context, ms_line_editor_t *lineed)
 {
-    char *cwd = getcwd(NULL, 0);
-    char *cmdline = lineed->input_buffer;
-
-    if (!cmdline)
-        cmdline = "";
-    my_printf("\r[%d %s]$ %s\x1b[K", context->last_exit_status, cwd, cmdline);
-    free(cwd);
+    ms_prompt(context, MS_PROMPT_DEFAULT);
     msle_refresh_cursor_position(lineed);
 }
 
