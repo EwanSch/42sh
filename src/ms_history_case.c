@@ -12,12 +12,16 @@
 
 int no_history(ms_shell_context_t *ctx, int index)
 {
-    if (ctx->history_index == 0) {
-        my_dprintf(2, MS_NO_HISTORY, ctx->history_index);
+    if (index < 0) {
+        my_dprintf(2, MS_NO_HISTORY, index + 1);
         return 1;
     }
     if (!ctx->history[index]) {
         my_dprintf(2, MS_NO_HISTORY, index);
+        return 1;
+    }
+    if (ctx->history_index == 0) {
+        my_dprintf(2, MS_NO_HISTORY, ctx->history_index);
         return 1;
     }
     return 0;
@@ -37,15 +41,26 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
     return my_strdup(buffer);
 }
 
-static int get_num_in_line(char *line)
+static int get_num_in_line(char *line, ms_shell_context_t *ctx, int *is_less)
 {
-    size_t i = 1;
+    size_t i = 0;
     char *str = my_strstr(line, "!");
+    int value = 0;
 
     str += 1;
-    for (; str[i] != ' ' && str[i] != '\t'; ++i);
-    str[i] = '\0';
-    return my_getnbr(str);
+    if (str[0] == '-') {
+        value = ctx->history_index;
+        str += 1;
+        for (; str[i] != ' ' && str[i] != '\t' && str[i] != '\0'; ++i);
+        str[i] = '\0';
+        value -= my_getnbr(str);
+        *is_less -= my_getnbr(str);
+    } else {
+        for (; str[i] != ' ' && str[i] != '\t' && str[i] != '\0'; ++i);
+        str[i] = '\0';
+        value = my_getnbr(str);
+    }
+    return value;
 }
 
 char *number_case(char *line, ms_shell_context_t *ctx)
@@ -53,12 +68,14 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     char *new_cmd = NULL;
     char *last_cmd = NULL;
     char to_edit[CMD_STRING];
-    int value = get_num_in_line(line);
+    int is_less = 0;
+    int value = get_num_in_line(line, ctx, &is_less);
 
-    if (no_history(ctx, value))
+    if (no_history(ctx, is_less))
         return NULL;
     last_cmd = ctx->history[value];
-    my_snprintf(to_edit, sizeof(to_edit), "!%d", value);
+    my_snprintf
+        (to_edit, sizeof(to_edit), "!%d", (is_less < 0) ? is_less : value);
     new_cmd = replace_str(line, to_edit, last_cmd);
     return new_cmd ? new_cmd : line;
 }

@@ -48,7 +48,12 @@ static int is_number_command(char *line)
 
     if (!str)
         return 0;
-    value = my_isnum(str[1]);
+    if (str[1] == '-') {
+        value = my_isnum(str[2]);
+    }
+    else {
+        value = my_isnum(str[1]);
+    }
     return value;
 }
 
@@ -60,14 +65,14 @@ char *expand_history(char *line, ms_shell_context_t *ctx)
     if (!line)
         return NULL;
     if (is_number_command(line)) {
-        if (!number_case(line, ctx))
-            return NULL;
         new_cmd = number_case(line, ctx);
+        if (!new_cmd)
+            return NULL;
     }
     if (my_strstr(line, HISTORY_CMD) != NULL) {
-        if (!double_bang(line, ctx))
-            return NULL;
         new_cmd = double_bang(line, ctx);
+        if (!new_cmd)
+            return NULL;
     }
     if (new_cmd) {
         free(line);
