@@ -155,7 +155,6 @@ void msle_misc_codepoint(ms_line_editor_t *lined, int mod, int payload);
 char *expand_history(char *line, ms_shell_context_t *context);
 void fill_the_history(ms_shell_context_t *context, char *line);
 int check_display(char *line, ms_shell_context_t *ctx);
-int no_history(char *line, ms_shell_context_t *ctx);
 char *number_case(char *line, ms_shell_context_t *ctx);
 char *double_bang(char *line, ms_shell_context_t *ctx);
 

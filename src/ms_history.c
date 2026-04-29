@@ -44,10 +44,12 @@ int check_display(char *line, ms_shell_context_t *ctx)
 static int is_number_command(char *line)
 {
     char *str = my_strstr(line, "!");
+    int value = 0;
 
     if (!str)
         return 0;
-    return my_isnum(*str + 1) ? 1 : 0;
+    value = my_isnum(str[1]);
+    return value;
 }
 
 char *expand_history(char *line, ms_shell_context_t *ctx)
