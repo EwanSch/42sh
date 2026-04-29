@@ -74,8 +74,8 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     if (no_history(ctx, is_less))
         return NULL;
     last_cmd = ctx->history[value];
-    my_snprintf
-        (to_edit, sizeof(to_edit), "!%d", (is_less < 0) ? is_less : value);
+    my_snprintf(to_edit, sizeof(to_edit),
+        "!%d", (is_less < 0) ? is_less : value);
     new_cmd = replace_str(line, to_edit, last_cmd);
     return new_cmd ? new_cmd : line;
 }

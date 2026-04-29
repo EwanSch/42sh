@@ -50,8 +50,7 @@ static int is_number_command(char *line)
         return 0;
     if (str[1] == '-') {
         value = my_isnum(str[2]);
-    }
-    else {
+    } else {
         value = my_isnum(str[1]);
     }
     return value;
