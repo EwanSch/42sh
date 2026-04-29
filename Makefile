@@ -60,7 +60,9 @@ SRC_FILENAMES = \
 	my_recalloc.c	\
 	ms_mismatch.c
 
-HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h globbing.h
+HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h \
+	ms_grammar.h ms_builtins.h globbing.h
+
 CC ?= epiclang
 
 SRC_DIR = src

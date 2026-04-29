@@ -13,6 +13,7 @@
 
 #include "minishell2.h"
 #include "benjalib.h"
+#include "ms_grammar.h"
 
 static int trigger_command(char **args, ms_shell_context_t *context,
     int in, int out)
@@ -34,6 +35,27 @@ static int trigger_command(char **args, ms_shell_context_t *context,
     return res;
 }
 
+static int visit_brackets(ms_syntax_tree_t *node,
+    ms_shell_context_t *context, int fdin, int fdout)
+{
+    pid_t forked = fork();
+    int status = 0;
+
+    if (forked < 0)
+        return MYSH_ERROR;
+    if (forked == 0) {
+        dup2(fdin, STDIN_FILENO);
+        dup2(fdout, STDOUT_FILENO);
+        exit(visit_sequence(node, context));
+    }
+    waitpid(forked, &status, 0);
+    if (fdin != STDIN_FILENO)
+        close(fdin);
+    if (fdout != STDOUT_FILENO)
+        close(fdout);
+    return status;
+}
+
 static int visit_command(ms_syntax_tree_t *node,
     ms_shell_context_t *context, int fdin, int fdout)
 {
@@ -43,7 +65,7 @@ static int visit_command(ms_syntax_tree_t *node,
     if (!node || !context)
         return MYSH_ERROR;
     if (node->type != MS_TREE_COMMAND)
-        return MYSH_ERROR;
+        return visit_brackets(node, context, fdin, fdout);
     args = my_calloc(ll_size(node->children) + 1, sizeof(char *));
     if (!args)
         return MYSH_ERROR;
@@ -67,8 +89,8 @@ int visit_simple_command(ms_syntax_tree_t *node, ms_shell_context_t *context,
 
     if (!node || !context)
         return MYSH_ERROR;
-    if (!node->children || ((ms_syntax_tree_t *) node->children->data)->type
-        != MS_TREE_COMMAND)
+    if (!node->children || (VIS_CHILD(node, 0)->type != MS_TREE_COMMAND &&
+            VIS_CHILD(node, 0)->type != MS_TREE_SEQUENCE))
         return MYSH_ERROR;
     cmd = ll_shift(&node->children);
     while (node->children) {
@@ -100,12 +122,19 @@ static int visit_pipeline(ms_syntax_tree_t *node, ms_shell_context_t *context)
 static int visit_and_or(ms_syntax_tree_t *node, ms_shell_context_t *context)
 {
     ms_syntax_tree_t *child;
+    ms_token_t *token;
     int res = 0;
 
-    while (node->children && res == 0) {
+    while (node->children) {
         child = ll_shift(&node->children);
         if (child->type == MS_TREE_PIPELINE)
             res = visit_pipeline(child, context);
+        token = ll_shift(&node->children);
+        if (!token)
+            break;
+        if ((token->type == MS_TOKEN_AND && res != 0) ||
+            (token->type == MS_TOKEN_OR && res == 0))
+            return res;
     }
     return res;
 }
