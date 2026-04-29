@@ -21,6 +21,7 @@
 #include "minishell2.h"
 #include "globbing.h"
 #include "ms_builtins.h"
+#include "ms_grammar.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -63,6 +64,8 @@ int process_line(ms_shell_context_t *context, char *line)
     char *expanded;
 
     if (!context || !line)
+        return 1;
+    if (check_parentheses_basic(line))
         return 1;
     expanded = expand_paths(line, context);
     if (!expanded)
