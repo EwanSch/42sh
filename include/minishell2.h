@@ -20,6 +20,7 @@
     #define PARSER_ESCAPING(x) ((x)->backslashed || PARSER_QUOTING(x))
 
     #define VIS_VALID(x, y, z) (!(x) || y->type != z)
+    #define VIS_CHILD(x, y) ((ms_syntax_tree_t *) x->children[y].data)
 
     #define RECORD_SEPARATOR '\x1e'
 
