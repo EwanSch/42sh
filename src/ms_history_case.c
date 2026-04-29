@@ -71,7 +71,7 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     int is_less = 0;
     int value = get_num_in_line(line, ctx, &is_less);
 
-    if (no_history(ctx, is_less))
+    if (no_history(ctx, (is_less < 0) ? is_less : value))
         return NULL;
     last_cmd = ctx->history[value];
     my_snprintf(to_edit, sizeof(to_edit),
