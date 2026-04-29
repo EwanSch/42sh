@@ -9,16 +9,22 @@
 #include "minishell2.h"
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 void fill_the_history(ms_shell_context_t *ctx, char *line)
 {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char time[MAX_TIME];
+
     if (!line || line[0] == '\0')
         return;
-    if (ctx->history_index > 0 &&
-        my_strcmp(ctx->history[ctx->history_index - 1], line) == 0) {
-        return;
-    }
+    if (t->tm_min < 10)
+        my_snprintf(time, sizeof(time), "%d:0%d", t->tm_hour, t->tm_min);  
+    else  
+        my_snprintf(time, sizeof(time), "%d:%d", t->tm_hour, t->tm_min);
     ctx->history[ctx->history_index] = my_strdup(line);
+    ctx->time[ctx->history_index] = my_strdup(time);
     ctx->history_index++;
 }
 
@@ -27,7 +33,7 @@ int check_display(char *line, ms_shell_context_t *ctx)
     if (my_strcmp(line, "history") == 0) {
         fill_the_history(ctx, line);
         for (size_t i = 0; i < ctx->history_index; ++i) {
-            my_printf("%6d %5s\t%s\n", i + 1, "0:00", ctx->history[i]);
+            my_printf("%6d %5s\t%s\n", i + 1, ctx->time[i], ctx->history[i]);
         }
         return 1;
     }

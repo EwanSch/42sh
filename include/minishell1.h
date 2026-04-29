@@ -31,6 +31,8 @@
     #define MYSH_IN_BUF_EXTENSION_STEP 256
     #define MYSH_ESC_SEQ_MAXLEN 64
 
+    #define MAX_TIME 6
+
 typedef struct ms_shell_context_s ms_shell_context_t;
 typedef struct ms_env_entry_s ms_env_entry_t;
 typedef struct km_entry_s km_entry_t;
@@ -67,7 +69,8 @@ typedef struct {
 struct ms_shell_context_s {
     char *line_buffer;
     unsigned char last_exit_status;
-    char *history[50];
+    char *history[MYSH_HISTORY_SIZE];
+    char *time[MYSH_HISTORY_SIZE];
     int history_index;
     char *last_working_dir;
     alias_t *alias;
