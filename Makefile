@@ -40,6 +40,7 @@ SRC_FILENAMES = \
 	ms_le_keybinds.c \
 	ms_le_tools.c \
 	ms_history.c \
+	ms_history_case.c \
 	ms_builtins_list.c \
 	builtins/ms_bi_env.c \
 	builtins/ms_bi_setenv.c \
