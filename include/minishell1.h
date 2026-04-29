@@ -37,6 +37,14 @@ typedef struct km_entry_s km_entry_t;
 typedef list_t keymap_t;
 typedef struct ms_line_editor_s ms_line_editor_t;
 typedef struct ms_editor_command_s ms_editor_command_t;
+typedef struct alias_s alias_t;
+
+
+struct alias_s {
+    char *name;
+    char *alias;
+    struct alias_s *next;
+};
 
 struct ms_env_entry_s {
     char *key;
@@ -62,6 +70,7 @@ struct ms_shell_context_s {
     char *history[50];
     int history_index;
     char *last_working_dir;
+    alias_t *alias;
     keymap_t *variables;
     keymap_t *env;
     linereader_t *reader;
@@ -104,11 +113,12 @@ int error(char const *format, ...);
 int my_getexit(char const *str);
 
 // Keymap Utility
-bool km_has(char *key, keymap_t *keymap);
-char *km_get(char *key, keymap_t *keymap);
-void km_set(char *key, char *value, keymap_t **keymap);
-void km_unset(char *key, keymap_t **keymap);
-char *km_get_or_default(char *key, keymap_t *keymap, char *deflt);
+bool km_has(char const *key, keymap_t *keymap);
+char *km_get(char const *key, keymap_t *keymap);
+void km_set(char const *key, char const *value, keymap_t **keymap);
+void km_unset(char const *key, keymap_t **keymap);
+char *km_get_or_default(char const *key, keymap_t *keymap,
+    char *def);
 
 // Env utils
 void ms_populate_env_from_dump(char **env_dump, ms_shell_context_t *context);
