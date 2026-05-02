@@ -128,7 +128,7 @@ void each_quote(char str, int *which_quote)
 static int get_value(int i, var_utils_t *utils, int which_quote, list_t **list)
 {
     if (utils->str[i] == '$' && which_quote != 1) {
-        if (utils->str[i + 1] == '\n' || utils->str[i + 1] == ' ') {
+        if (IS_SEPARATOR(utils->str[i + 1])) {
             return 1;
         }
         ll_push(list, strndup(&utils->str[utils->word_size],

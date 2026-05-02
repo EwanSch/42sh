@@ -25,6 +25,9 @@ void msle_refresh_cursor_position(ms_line_editor_t *lined)
 void display_prompt(ms_shell_context_t *context, ms_line_editor_t *lineed)
 {
     ms_prompt(context, MS_PROMPT_DEFAULT);
+    if (lineed->input_buffer)
+        my_putstr(lineed->input_buffer);
+    my_putstr("\x1b[K");
     msle_refresh_cursor_position(lineed);
 }
 
@@ -44,7 +47,7 @@ int msle_extend_input_buffer(ms_line_editor_t *lined)
 
 void msle_add_character(ms_line_editor_t *lined, char const c)
 {
-    if (lined->caret_pos >= lined->bufsize) {
+    if (lined->text_len >= lined->bufsize) {
         if (msle_extend_input_buffer(lined))
             return;
     }
@@ -73,10 +76,12 @@ int msle_special_key(ms_shell_context_t *ctx, ms_line_editor_t *lined, char c)
         case '\n':
             msle_hit_enter(ctx, lined);
             return 1;
-        case '\t':
-            msle_hit_tab(lined);
-            return 1;
         default:
             return 0;
     }
 }
+/*
+case '\t':
+msle_hit_tab(lined);
+return 1;
+*/
