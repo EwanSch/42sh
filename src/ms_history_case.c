@@ -23,15 +23,20 @@ char *free_secure_switch(char *new_command)
 
 int no_history(ms_shell_context_t *ctx, int index)
 {
-    if (index < 0) {
+    int value = -1;
+
+    value = index < 0 ? 1 : value;
+    value = ctx->history_index == 0 ? 2 : value;
+    value = !ctx->history[index] ? 3 : value;
+    if (value == 1) {
         my_dprintf(2, MS_NO_HISTORY, index + 1);
         return 1;
     }
-    if (!ctx->history[index]) {
+    if (value == 3) {
         my_dprintf(2, MS_NO_HISTORY, index);
         return 1;
     }
-    if (ctx->history_index == 0) {
+    if (value == 2) {
         my_dprintf(2, MS_NO_HISTORY, ctx->history_index);
         return 1;
     }
@@ -57,22 +62,24 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
 static int get_num_in_line(char *line, ms_shell_context_t *ctx, int *is_less)
 {
     size_t i = 0;
-    char *str = my_strstr(line, "!");
+    char *str = my_strdup(line);
+    char *tmp = my_strstr(str, "!");
     int value = 0;
 
-    str += 1;
-    if (str[0] == '-') {
+    tmp += 1;
+    if (tmp[0] == '-') {
         value = ctx->history_index;
-        str += 1;
-        for (; str[i] != ' ' && str[i] != '\t' && str[i] != '\0'; ++i);
-        str[i] = '\0';
-        value -= my_getnbr(str);
-        *is_less -= my_getnbr(str);
+        tmp += 1;
+        for (; tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '\0'; ++i);
+        tmp[i] = '\0';
+        value -= my_getnbr(tmp);
+        *is_less -= my_getnbr(tmp);
     } else {
-        for (; str[i] != ' ' && str[i] != '\t' && str[i] != '\0'; ++i);
-        str[i] = '\0';
-        value = my_getnbr(str);
+        for (; tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '\0'; ++i);
+        tmp[i] = '\0';
+        value = my_getnbr(tmp);
     }
+    safe_free(&str);
     return value;
 }
 
