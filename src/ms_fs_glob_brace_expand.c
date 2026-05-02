@@ -54,13 +54,6 @@ static char **alloc_res(int count)
     return res;
 }
 
-static char **free_all(char *inside, char **parts)
-{
-    free(inside);
-    free_str_arr(parts);
-    return NULL;
-}
-
 static void fill_res(char **res, char **parts, brace_t *ctx)
 {
     int i = 0;
@@ -72,6 +65,8 @@ static void fill_res(char **res, char **parts, brace_t *ctx)
             ctx->close,
             parts[i]
         );
+        if (!res[i])
+            return;
         i++;
     }
     res[i] = NULL;
@@ -85,11 +80,11 @@ static char **build_expand(brace_t *ctx, char *inside)
 
     parts = my_explode(inside, ",");
     if (!parts)
-        return free(inside), NULL;
+        return NULL;
     count = count_parts(parts);
     res = alloc_res(count);
     if (!res)
-        return free_all(inside, parts);
+        return free_str_arr(parts), NULL;
     fill_res(res, parts, ctx);
     free_str_arr(parts);
     return res;
@@ -104,7 +99,9 @@ char **brace_expand(const char *pattern)
     ctx.pattern = pattern;
     ctx.open = strchr(pattern, '{');
     ctx.close = find_close(ctx.open);
-    if (!ctx.open || !ctx.close)
+    if (!ctx.open)
+        return NULL;
+    if (!ctx.close)
         return NULL;
     inside = extract_inside(ctx.open, ctx.close);
     if (!inside)

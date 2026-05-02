@@ -11,8 +11,10 @@ static int handle_star(const char *p, const char *s, int i, int j)
 {
     if (!p[i + 1])
         return 1;
+    if (glob_match(p + i + 1, s + j))
+        return 1;
     while (s[j]) {
-        if (glob_match(p + i + 1, s + j))
+        if (glob_match(p + i + 1, s + j + 1))
             return 1;
         j++;
     }
