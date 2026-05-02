@@ -157,6 +157,7 @@ void fill_the_history(ms_shell_context_t *context, char *line);
 int check_display(char *line, ms_shell_context_t *ctx);
 char *number_case(char *line, ms_shell_context_t *ctx);
 char *double_bang(char *line, ms_shell_context_t *ctx);
+char *free_secure_switch(char *new_command);
 
 // Line Editor Keybinds
 void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined);

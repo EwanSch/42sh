@@ -10,6 +10,7 @@
 */
 
 #include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,7 +65,6 @@ int process_line(ms_shell_context_t *context, char *line)
     line = expand_history(line, context);
     if (!context || !line || check_display(line, context))
         return 1;
-    fill_the_history(context, line);
     expanded = expand_paths(line, context);
     if (!expanded)
         return 1;
@@ -115,6 +115,14 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
     return -1;
 }
 
+void ms_free_history(ms_shell_context_t *ctx)
+{
+    for (size_t i = 0; i < ctx->history_index; ++i) {
+        safe_free(&ctx->history[i]);
+        safe_free(&ctx->time[i]);
+    }
+}
+
 int main(int argc, char **argv, char **env)
 {
     struct termios orig_termios;
@@ -132,6 +140,7 @@ int main(int argc, char **argv, char **env)
     if (return_value == 0)
         return_value = msle_mainloop(&context, &lined);
     safe_free(&lined.history[lined.history_index]);
+    ms_free_history(&context);
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);
     if (context.is_interactive)

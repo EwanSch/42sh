@@ -10,6 +10,17 @@
 #include <stdio.h>
 #include <string.h>
 
+char *free_secure_switch(char *new_command)
+{
+    char *tmp = NULL;
+
+    if (new_command != NULL) {
+        tmp = my_strdup(new_command);
+        safe_free(&new_command);
+        return tmp;
+    }
+}
+
 int no_history(ms_shell_context_t *ctx, int index)
 {
     if (index < 0) {
@@ -31,6 +42,7 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
 {
     char buffer[MAX_CMD] = {0};
     char *part = my_strstr(str, to_replace);
+    char *new_line = NULL;
 
     if (!part)
         return my_strdup(str);
@@ -38,7 +50,8 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
     buffer[part - str] = '\0';
     my_strcat(buffer, replacement);
     my_strcat(buffer, part + my_strlen(to_replace));
-    return my_strdup(buffer);
+    new_line = my_strdup(buffer);
+    return new_line;
 }
 
 static int get_num_in_line(char *line, ms_shell_context_t *ctx, int *is_less)
@@ -77,7 +90,7 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     my_snprintf(to_edit, sizeof(to_edit),
         "!%d", (is_less < 0) ? is_less : value);
     new_cmd = replace_str(line, to_edit, last_cmd);
-    return new_cmd ? new_cmd : line;
+    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
 }
 
 char *double_bang(char *line, ms_shell_context_t *ctx)
@@ -89,5 +102,5 @@ char *double_bang(char *line, ms_shell_context_t *ctx)
         return NULL;
     last_cmd = ctx->history[ctx->history_index - 1];
     new_cmd = replace_str(line, HISTORY_CMD, last_cmd);
-    return new_cmd ? new_cmd : line;
+    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
 }

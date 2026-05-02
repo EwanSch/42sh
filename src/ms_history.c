@@ -24,8 +24,11 @@ void fill_the_history(ms_shell_context_t *ctx, char *line)
         my_snprintf(time, sizeof(time), "%d:0%d", t->tm_hour, t->tm_min);
     else
         my_snprintf(time, sizeof(time), "%d:%d", t->tm_hour, t->tm_min);
-    ctx->history[ctx->history_index] = my_strdup(line);
-    ctx->time[ctx->history_index] = my_strdup(time);
+    safe_free(&ctx->history[MYSH_HISTORY_SIZE - 1]);
+    ctx->history[0] = NULL;
+    ctx->history[ctx->history_index + 1] = my_strdup(line);
+    safe_free(&ctx->time[MYSH_HISTORY_SIZE - 1]);
+    ctx->time[ctx->history_index + 1] = my_strdup(time);
     ctx->history_index++;
 }
 
@@ -33,11 +36,12 @@ int check_display(char *line, ms_shell_context_t *ctx)
 {
     if (my_strcmp(line, "history") == 0) {
         fill_the_history(ctx, line);
-        for (size_t i = 0; i < ctx->history_index; ++i) {
-            my_printf("%6d %5s\t%s\n", i + 1, ctx->time[i], ctx->history[i]);
+        for (size_t i = 1; i < ctx->history_index + 1; ++i) {
+            my_printf("%6d %5s\t%s\n", i, ctx->time[i], ctx->history[i]);
         }
         return 1;
     }
+    fill_the_history(ctx, line);
     return 0;
 }
 
@@ -73,9 +77,5 @@ char *expand_history(char *line, ms_shell_context_t *ctx)
         if (!new_cmd)
             return NULL;
     }
-    if (new_cmd) {
-        free(line);
-        line = new_cmd;
-    }
-    return line;
+    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
 }
