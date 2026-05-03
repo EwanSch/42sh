@@ -151,14 +151,20 @@ void msle_move_start(ms_line_editor_t *lined, int mod, int payload);
 void msle_move_end(ms_line_editor_t *lined, int mod, int payload);
 void msle_misc_codepoint(ms_line_editor_t *lined, int mod, int payload);
 
-// History misc
+// History utils
 char *expand_history(char *line, ms_shell_context_t *context);
-void fill_the_history(ms_shell_context_t *context, char *line);
 int check_display(char *line, ms_shell_context_t *ctx);
-char *number_case(char *line, ms_shell_context_t *ctx);
-char *double_bang(char *line, ms_shell_context_t *ctx);
+void fill_the_history(ms_shell_context_t *context, char *line);
+int no_history(ms_shell_context_t *ctx, int index);
+
 char *free_secure_switch(char *new_command);
 void ms_free_history(ms_shell_context_t *ctx);
+int is_there_delimiter(char *line, char delim);
+char *del_delimiter(char *str, char delim);
+
+char *number_case(char *line, ms_shell_context_t *ctx);
+char *double_bang(char *line, ms_shell_context_t *ctx);
+char *str_case(char *line, ms_shell_context_t *ctx);
 
 // Line Editor Keybinds
 void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined);

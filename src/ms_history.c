@@ -13,7 +13,7 @@
 
 void ms_free_history(ms_shell_context_t *ctx)
 {
-    for (size_t i = 0; i < ctx->history_index; ++i) {
+    for (size_t i = 1; i < ctx->history_index; ++i) {
         safe_free(&ctx->history[i]);
         safe_free(&ctx->time[i]);
     }
@@ -52,7 +52,7 @@ int check_display(char *line, ms_shell_context_t *ctx)
     return 0;
 }
 
-static int is_num_command(char *line)
+static int target_is_num(char *line)
 {
     char *str = my_strstr(line, "!");
     int value = 0;
@@ -67,6 +67,17 @@ static int is_num_command(char *line)
     return value;
 }
 
+static int target_is_str(char *line)
+{
+    char *str = my_strstr(line, "!");
+
+    if (!str)
+        return 0;
+    if (str[1] == '?')
+        return my_isalpha(str[2]);
+    return my_isalpha(str[1]);
+}
+
 static int set_flag_in_line(char *line, ms_shell_context_t *ctx)
 {
     int count = 0;
@@ -75,7 +86,7 @@ static int set_flag_in_line(char *line, ms_shell_context_t *ctx)
     if (!arr)
         return count;
     for (size_t i = 0; arr[i]; ++i) {
-        if (is_num_command(arr[i]) || my_strstr(arr[i], HISTORY_CMD) != NULL)
+        if (target_is_num(arr[i]) || my_strstr(arr[i], HISTORY_CMD) != NULL)
             count++;
     }
     for (size_t i = 0; arr[i]; ++i)
@@ -84,26 +95,48 @@ static int set_flag_in_line(char *line, ms_shell_context_t *ctx)
     return count;
 }
 
+static char *div_expand_history(char *line, ms_shell_context_t *ctx, int *checked)
+{
+    char *new_line = NULL;
+
+    if (my_strstr(line, HISTORY_CMD) != NULL) {
+        *checked = 1;
+        new_line = double_bang(line, ctx);
+        if (!new_line)
+            return NULL;
+        return new_line;
+    }
+    if (target_is_num(line)) {
+        *checked = 1;
+        new_line = number_case(line, ctx);
+        if (!new_line)
+            return NULL;
+        return new_line;
+    }
+    if (target_is_str(line)) {
+        *checked = 1;
+        new_line = str_case(line, ctx);
+        if (!new_line)
+            return NULL;
+        return new_line;
+    }
+    return NULL;
+}
+
 char *expand_history(char *line, ms_shell_context_t *ctx)
 {
     char *last_cmd = NULL;
-    char *new_cmd = NULL;
+    char *new_line = NULL;
     int is_command = 0;
+    int checked = 0;
 
     if (!line)
         return NULL;
     is_command = set_flag_in_line(line, ctx);
-    if (is_num_command(line)) {
-        new_cmd = number_case(line, ctx);
-        if (!new_cmd)
-            return NULL;
-    }
-    if (my_strstr(line, HISTORY_CMD) != NULL) {
-        new_cmd = double_bang(line, ctx);
-        if (!new_cmd)
-            return NULL;
-    }
-    if (is_command > 0)
-        new_cmd = expand_history(new_cmd, ctx);
-    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
+    new_line = div_expand_history(line, ctx, &checked);
+    if (!new_line && checked)
+        return NULL;
+    if (is_command > 0 && new_line != NULL)
+        new_line = expand_history(new_line, ctx);
+    return new_line != NULL ? free_secure_switch(new_line) : line;
 }

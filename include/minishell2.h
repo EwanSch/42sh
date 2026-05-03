@@ -40,6 +40,7 @@
     #define MS_ENV_PATH "PATH"
 
     #define MS_NO_HISTORY "%d: Event not found.\n"
+    #define MS_NO_HISTORY2 "%s: Event not found.\n"
     #define MAX_CMD 4096
     #define HISTORY_CMD "!!"
 
