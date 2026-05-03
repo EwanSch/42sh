@@ -95,32 +95,26 @@ static int set_flag_in_line(char *line, ms_shell_context_t *ctx)
     return count;
 }
 
-static char *div_expand_history(char *line, ms_shell_context_t *ctx, int *checked)
+static char *div_expand_history(char *line, ms_shell_context_t *ctx,
+    int *checked)
 {
     char *new_line = NULL;
 
     if (my_strstr(line, HISTORY_CMD) != NULL) {
         *checked = 1;
         new_line = double_bang(line, ctx);
-        if (!new_line)
-            return NULL;
-        return new_line;
     }
     if (target_is_num(line)) {
         *checked = 1;
         new_line = number_case(line, ctx);
-        if (!new_line)
-            return NULL;
-        return new_line;
     }
     if (target_is_str(line)) {
         *checked = 1;
         new_line = str_case(line, ctx);
-        if (!new_line)
-            return NULL;
-        return new_line;
     }
-    return NULL;
+    if (*checked && !new_line)
+        return NULL;
+    return new_line;
 }
 
 char *expand_history(char *line, ms_shell_context_t *ctx)
