@@ -101,8 +101,10 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 
     while (1) {
         display_prompt(context, lined);
-        if (read(STDIN_FILENO, &c, 1) != 1)
+        if (read(STDIN_FILENO, &c, 1) != 1) {
+            safe_free(&lined->history[lined->history_index]);
             return 84;
+        }
         if (c == 0x04)
             break;
         if (msle_special_key(context, lined, c))
@@ -112,6 +114,7 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         msle_add_character(lined, c);
     }
+    safe_free(&lined->history[lined->history_index]);
     return -1;
 }
 
@@ -139,7 +142,6 @@ int main(int argc, char **argv, char **env)
         return_value = 84;
     if (return_value == 0)
         return_value = msle_mainloop(&context, &lined);
-    safe_free(&lined.history[lined.history_index]);
     ms_free_history(&context);
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);

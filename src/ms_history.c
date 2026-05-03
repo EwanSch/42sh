@@ -5,7 +5,6 @@
 ** ms_history.c
 */
 
-#include "minishell1.h"
 #include "minishell2.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -45,7 +44,7 @@ int check_display(char *line, ms_shell_context_t *ctx)
     return 0;
 }
 
-static int is_number_command(char *line)
+static int is_num_command(char *line)
 {
     char *str = my_strstr(line, "!");
     int value = 0;
@@ -60,14 +59,33 @@ static int is_number_command(char *line)
     return value;
 }
 
+static int set_flag_in_line(char *line, ms_shell_context_t *ctx)
+{
+    int count = 0;
+    char **arr = my_explode(line, " \t");
+
+    if (!arr)
+        return count;
+    for (size_t i = 0; arr[i]; ++i) {
+        if (is_num_command(arr[i]) || my_strstr(arr[i], HISTORY_CMD) != NULL)
+            count++;
+    }
+    for (size_t i = 0; arr[i]; ++i)
+        safe_free(&arr[i]);
+    safe_free(&arr);
+    return count;
+}
+
 char *expand_history(char *line, ms_shell_context_t *ctx)
 {
     char *last_cmd = NULL;
     char *new_cmd = NULL;
+    int is_command = 0;
 
     if (!line)
         return NULL;
-    if (is_number_command(line)) {
+    is_command = set_flag_in_line(line, ctx);
+    if (is_num_command(line)) {
         new_cmd = number_case(line, ctx);
         if (!new_cmd)
             return NULL;
@@ -77,5 +95,7 @@ char *expand_history(char *line, ms_shell_context_t *ctx)
         if (!new_cmd)
             return NULL;
     }
+    if (is_command > 0)
+        new_cmd = expand_history(new_cmd, ctx);
     return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
 }
