@@ -11,6 +11,14 @@
 #include <string.h>
 #include <time.h>
 
+void ms_free_history(ms_shell_context_t *ctx)
+{
+    for (size_t i = 0; i < ctx->history_index; ++i) {
+        safe_free(&ctx->history[i]);
+        safe_free(&ctx->time[i]);
+    }
+}
+
 void fill_the_history(ms_shell_context_t *ctx, char *line)
 {
     time_t now = time(NULL);

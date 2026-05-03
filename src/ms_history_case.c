@@ -23,11 +23,11 @@ char *free_secure_switch(char *new_command)
 
 int no_history(ms_shell_context_t *ctx, int index)
 {
-    int value = -1;
+    int value = 0;
 
-    value = index < 0 ? 1 : value;
-    value = ctx->history_index == 0 ? 2 : value;
-    value = !ctx->history[index] ? 3 : value;
+    value = index >= 0 ? value : 1;
+    value = (ctx->history_index == 0 && value == 0) ? 2 : value;
+    value = (!ctx->history[index] && value == 0) ? 3 : value;
     if (value == 1) {
         my_dprintf(2, MS_NO_HISTORY, index + 1);
         return 1;
@@ -105,9 +105,9 @@ char *double_bang(char *line, ms_shell_context_t *ctx)
     char *new_cmd = NULL;
     char *last_cmd = NULL;
 
-    if (no_history(ctx, 0))
+    if (no_history(ctx, ctx->history_index))
         return NULL;
-    last_cmd = ctx->history[ctx->history_index - 1];
+    last_cmd = ctx->history[ctx->history_index];
     new_cmd = replace_str(line, HISTORY_CMD, last_cmd);
     return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
 }

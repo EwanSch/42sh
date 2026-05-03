@@ -109,21 +109,25 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             break;
         if (msle_special_key(context, lined, c))
             continue;
-        if ((lined->text_len + 1) >= lined->bufsize &&
-            msle_extend_input_buffer(lined))
-            continue;
         msle_add_character(lined, c);
     }
+    ms_free_history(context);
     safe_free(&lined->history[lined->history_index]);
     return -1;
 }
 
-void ms_free_history(ms_shell_context_t *ctx)
+static int mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 {
-    for (size_t i = 0; i < ctx->history_index; ++i) {
-        safe_free(&ctx->history[i]);
-        safe_free(&ctx->time[i]);
+    if (context->is_interactive)
+        return msle_mainloop(context, lined);
+    while (1) {
+        context->line_buffer = lr_read(context->reader);
+        if (!context->line_buffer)
+            break;
+        context->last_exit_status = process_line(context, context->line_buffer);
+        free(context->line_buffer);
     }
+    return -1;
 }
 
 int main(int argc, char **argv, char **env)
@@ -138,11 +142,7 @@ int main(int argc, char **argv, char **env)
     ms_populate_env_from_dump(env, &context);
     prepare_variables(&context);
     context.reader = lr_from_stream(stdin);
-    if (!context.reader)
-        return_value = 84;
-    if (return_value == 0)
-        return_value = msle_mainloop(&context, &lined);
-    ms_free_history(&context);
+    return_value = context.reader ? mainloop(&context, &lined) : 84;
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);
     if (context.is_interactive)
