@@ -23,6 +23,6 @@ const ms_builtin_t ms_builtins_list[] = {
     {"where", &ms_bi_where},
     {":", &ms_bi_colon},
     {"chdir", &ms_bi_cd},
-    {"setpath", &ms_bi_setpath},
+    {"set", &ms_bi_set},
     { NULL, NULL }
 };

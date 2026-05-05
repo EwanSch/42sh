@@ -52,6 +52,7 @@ SRC_FILENAMES = \
 	builtins/ms_bi_which.c	\
 	builtins/ms_bi_where.c	\
 	builtins/ms_bi_colon.c	\
+	builtins/ms_bi_set.c	\
 	ms_var_substitution.c	\
 	ll_to_str.c	\
 	my_recalloc.c	\
