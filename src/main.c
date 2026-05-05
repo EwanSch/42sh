@@ -71,7 +71,8 @@ int process_line(ms_shell_context_t *context, char *line)
     free(expanded);
     if (!tokens)
         return 1;
-    apply_globbing(&tokens, context);
+    if (apply_globbing(&tokens, context))
+        return 1;
     return ms_runner(tokens, context);
 }
 

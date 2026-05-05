@@ -24,7 +24,13 @@ void msle_refresh_cursor_position(ms_line_editor_t *lined)
 
 void display_prompt(ms_shell_context_t *context, ms_line_editor_t *lineed)
 {
-    ms_prompt(context, MS_PROMPT_DEFAULT);
+    char *cwd = getcwd(NULL, 0);
+    char *cmdline = lineed->input_buffer;
+    
+    if (!cmdline)
+        cmdline = "";
+    my_printf("\r[%d %s]$ %s\x1b[K", context->last_exit_status, cwd, cmdline);
+    free(cwd);
     msle_refresh_cursor_position(lineed);
 }
 
