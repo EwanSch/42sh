@@ -38,3 +38,11 @@ void msle_history_down(ms_line_editor_t *lined, int mod, int payload)
     lined->bufsize = lined->text_len + 1;
     lined->caret_pos = lined->text_len;
 }
+
+void msle_history_clear(ms_line_editor_t *lined, int mod, int payload)
+{
+    for (int i = 0; i < lined->history_top + 1; i++)
+        safe_free(&lined->history[i]);
+    lined->history_index = 0;
+    lined->history_top = 0;
+}
