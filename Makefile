@@ -42,6 +42,8 @@ SRC_FILENAMES = \
 	ms_history.c \
 	ms_history_case.c \
 	ms_history_utils.c \
+	ms_special_variables.c	\
+	ms_argv_variables.c	\
 	ms_builtins_list.c \
 	builtins/ms_bi_env.c \
 	builtins/ms_bi_setenv.c \
@@ -50,12 +52,16 @@ SRC_FILENAMES = \
 	builtins/ms_bi_alias.c	\
 	builtins/ms_bi_unalias.c	\
 	builtins/ms_bi_exit.c	\
+	builtins/ms_bi_which.c	\
+	builtins/ms_bi_where.c	\
+	builtins/ms_bi_colon.c	\
+	builtins/ms_bi_set.c	\
 	ms_var_substitution.c	\
 	ll_to_str.c	\
 	my_recalloc.c	\
 	ms_mismatch.c
 
-HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h
+HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h shell.h ms_builtins.h
 CC ?= epiclang
 
 SRC_DIR = src
