@@ -10,15 +10,18 @@
 #include <stddef.h>
 #include <string.h>
 
-char *free_secure_switch(char *new_command)
+char *free_secure_switch(void *new_command)
 {
     char *tmp = NULL;
+    void **full_cmd = new_command;
 
-    if (new_command != NULL) {
-        tmp = my_strdup(new_command);
-        safe_free(&new_command);
+    if (*full_cmd != NULL) {
+        tmp = my_strdup(*full_cmd);
+        free(*full_cmd);
+        *full_cmd = NULL;
         return tmp;
     }
+    return NULL;
 }
 
 int no_history(ms_shell_context_t *ctx, int index)

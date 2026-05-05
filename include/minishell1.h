@@ -157,7 +157,7 @@ int check_display(char *line, ms_shell_context_t *ctx);
 void fill_the_history(ms_shell_context_t *context, char *line);
 int no_history(ms_shell_context_t *ctx, int index);
 
-char *free_secure_switch(char *new_command);
+char *free_secure_switch(void *new_command);
 void ms_free_history(ms_shell_context_t *ctx);
 int is_there_delimiter(char *line, char delim);
 char *del_delimiter(char *str, char delim);

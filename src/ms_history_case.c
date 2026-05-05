@@ -24,6 +24,7 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
     buffer[part - str] = '\0';
     my_strcat(buffer, replacement);
     my_strcat(buffer, part + my_strlen(to_replace));
+    safe_free(&str);
     new_line = my_strdup(buffer);
     return new_line;
 }
@@ -107,8 +108,8 @@ char *str_case(char *line, ms_shell_context_t *ctx)
         my_dprintf(2, MS_NO_HISTORY2, del_delimiter(to_replace + 1, '?'));
         return NULL;
     }
-    new_cmd = replace_str(line, to_replace, last_cmd);
-    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
+    line = replace_str(line, to_replace, last_cmd);
+    return line;
 }
 
 char *number_case(char *line, ms_shell_context_t *ctx)
@@ -124,8 +125,8 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     last_cmd = ctx->history[value];
     my_snprintf(to_replace, sizeof(to_replace),
         "!%d", (is_less < 0) ? is_less : value);
-    new_cmd = replace_str(line, to_replace, last_cmd);
-    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
+    line = replace_str(line, to_replace, last_cmd);
+    return line;
 }
 
 char *double_bang(char *line, ms_shell_context_t *ctx)
@@ -136,6 +137,6 @@ char *double_bang(char *line, ms_shell_context_t *ctx)
     if (no_history(ctx, ctx->history_index))
         return NULL;
     last_cmd = ctx->history[ctx->history_index];
-    new_cmd = replace_str(line, HISTORY_CMD, last_cmd);
-    return new_cmd != NULL ? free_secure_switch(new_cmd) : line;
+    line = replace_str(line, HISTORY_CMD, last_cmd);
+    return line;
 }

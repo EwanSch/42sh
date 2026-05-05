@@ -131,6 +131,6 @@ char *expand_history(char *line, ms_shell_context_t *ctx)
     if (!new_line && checked)
         return NULL;
     if (is_command > 0 && new_line != NULL)
-        new_line = expand_history(new_line, ctx);
-    return new_line != NULL ? free_secure_switch(new_line) : line;
+        line = expand_history(new_line, ctx);
+    return line;
 }

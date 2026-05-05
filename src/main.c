@@ -65,9 +65,12 @@ int process_line(ms_shell_context_t *context, char *line)
     char *expanded;
 
     line = expand_history(line, context);
-    if (!context || !line || check_display(line, context))
+    if (!context || !line || check_display(line, context)) {
+        safe_free(&line);
         return 1;
+    }
     expanded = expand_paths(line, context);
+    safe_free(&line);
     if (!expanded)
         return 1;
     tokens = cut_words(expanded, context);
