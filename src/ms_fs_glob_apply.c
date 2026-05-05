@@ -62,12 +62,13 @@ int apply_globbing(list_t **tokens, ms_shell_context_t *ctx)
     gctx.tokens = tokens;
     gctx.ctx = ctx;
     gctx.cmd = NULL;
+    if (cur)
+        gctx.cmd = ((ms_token_t *)cur->data)->word_value;
     while (cur) {
         next = cur->next;
         tok = cur->data;
         if (should_glob(tok) && handle_glob(cur, tok, &gctx))
             return 1;
-        gctx.cmd = tok->word_value;
         cur = next;
     }
     return 0;
