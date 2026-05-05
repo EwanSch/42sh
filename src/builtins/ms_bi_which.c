@@ -23,7 +23,6 @@ int is_builtin(ms_shell_context_t *context, char *args)
     return 0;
 }
 
-
 static void check_bin_folder(int *nb, char *str, int i, char **path)
 {
     DIR *dir = opendir(path[i]);

@@ -82,6 +82,14 @@ static void env_to_var(char *env_name, char *var_name,
     km_set(var_name, value, &ctx->variables);
 }
 
+static void div_prepare_variables(ms_shell_context_t *context, char **argv,
+    int argc)
+{
+    set_term_variable(context);
+    set_cwd_variable(context);
+    save_argv(context, argv, argc);
+}
+
 static void prepare_variables(ms_shell_context_t *context, char **argv,
     int argc)
 {
@@ -104,9 +112,7 @@ static void prepare_variables(ms_shell_context_t *context, char **argv,
         &context->variables);
     km_set(MS_VAR_SHELL, "/bin/tcsh", &context->variables);
     km_set(MS_VAR_STATUS, "0", &context->variables);
-    set_term_variable(context);
-    set_cwd_variable(context);
-    save_argv(context, argv, argc);
+    div_prepare_variables(context, argv, argc);
 }
 
 static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
