@@ -17,10 +17,12 @@
 #include <unistd.h>
 #include <linux/limits.h>
 #include <sys/wait.h>
+
 #include "minishell1.h"
 #include "minishell2.h"
 #include "shell.h"
 #include "ms_builtins.h"
+#include "line_editor.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -127,10 +129,21 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         if (msle_special_key(context, lined, c))
             continue;
-        if ((lined->text_len + 1) >= lined->bufsize &&
-            msle_extend_input_buffer(lined))
-            continue;
         msle_add_character(lined, c);
+    }
+    return -1;
+}
+
+static int mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
+{
+    if (context->is_interactive)
+        return msle_mainloop(context, lined);
+    while (1) {
+        context->line_buffer = lr_read(context->reader);
+        if (!context->line_buffer)
+            break;
+        context->last_exit_status = process_line(context, context->line_buffer);
+        free(context->line_buffer);
     }
     return -1;
 }
@@ -147,13 +160,11 @@ int main(int argc, char **argv, char **env)
     ms_populate_env_from_dump(env, &context);
     prepare_variables(&context, argv, argc);
     context.reader = lr_from_stream(stdin);
-    if (!context.reader)
-        return_value = 84;
-    if (return_value == 0)
-        return_value = msle_mainloop(&context, &lined);
+    return_value = context.reader ? mainloop(&context, &lined) : 84;
     safe_free(&lined.history[lined.history_index]);
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);
+    msle_history_clear(&lined, 0, 0);
     if (context.is_interactive)
         my_putstr("\n");
     return return_value == -1 ? context.last_exit_status : return_value;
