@@ -37,11 +37,6 @@ static int is_solo_word(char const *string)
     return 0;
 }
 
-static bool is_whitespace(char c)
-{
-    return (c == ' ' || c == '\t' || c == '\n');
-}
-
 static ms_token_type_t get_solo_token_type(char *chr)
 {
     char const *ref = ".|;&<>()";
@@ -147,7 +142,7 @@ int delimit_words(char *string, list_t **lst, ms_parser_t *parser)
     for (; string[i]; i++) {
         if (update_parser2(string, i, parser))
             continue;
-        if (is_whitespace(string[i]) || is_solo_word(string + i))
+        if (IS_SEPARATOR(string[i]) || is_solo_word(string + i))
             break;
     }
     add_token(lst, string, i);
@@ -162,16 +157,18 @@ list_t *cut_words(char *string, ms_shell_context_t *context)
 
     var_string = var_sub(string, context);
     if (mismatch(string) || !var_string) {
+        if (var_string)
+            free(var_string);
         context->last_exit_status = 1;
         return NULL;
     }
     for (int i = 0; var_string[i]; i++) {
         parser.curr_char = i;
-        if (is_whitespace(var_string[i]) && !PARSER_ESCAPING(&parser)) {
+        if (IS_SEPARATOR(var_string[i]) && !PARSER_ESCAPING(&parser))
             continue;
-        }
         i += delimit_words(var_string + i, &lst, &parser) - 1;
     }
+    free(var_string);
     add_token(&lst, NULL, 0);
     return lst;
 }
