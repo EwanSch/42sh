@@ -30,17 +30,17 @@ static char *km_get_internal(char const *key, keymap_t *keymap,
     return NULL;
 }
 
-bool km_has(char const *key, keymap_t *keymap)
+bool km_has(char *key, keymap_t *keymap)
 {
     return !!km_get_internal(key, keymap, false);
 }
 
-char *km_get(char const *key, keymap_t *keymap)
+char *km_get(char *key, keymap_t *keymap)
 {
     return km_get_internal(key, keymap, true);
 }
 
-char *km_get_or_default(char const *key, keymap_t *keymap,
+char *km_get_or_default(char *key, keymap_t *keymap,
     char *def)
 {
     char *value = km_get_internal(key, keymap, false);
@@ -50,7 +50,7 @@ char *km_get_or_default(char const *key, keymap_t *keymap,
     return def;
 }
 
-void km_set(char const *key, char const *value, keymap_t **keymap)
+void km_set(char *key, char *value, keymap_t **keymap)
 {
     ms_env_entry_t *entry;
 
@@ -68,7 +68,7 @@ void km_set(char const *key, char const *value, keymap_t **keymap)
     ll_unshift(keymap, entry);
 }
 
-void km_unset(char const *key, keymap_t **keymap)
+void km_unset(char *key, keymap_t **keymap)
 {
     ms_env_entry_t *entry;
 
