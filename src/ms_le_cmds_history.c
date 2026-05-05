@@ -43,6 +43,10 @@ void msle_history_clear(ms_line_editor_t *lined, int mod, int payload)
 {
     for (int i = 0; i < lined->history_top + 1; i++)
         safe_free(&lined->history[i]);
+    safe_free(&lined->input_buffer);
     lined->history_index = 0;
     lined->history_top = 0;
+    lined->text_len = 0;
+    lined->caret_pos = 0;
+    lined->bufsize = 0;
 }
