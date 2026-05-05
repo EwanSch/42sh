@@ -93,8 +93,6 @@ static void div_prepare_variables(ms_shell_context_t *context, char **argv,
 static void prepare_variables(ms_shell_context_t *context, char **argv,
     int argc)
 {
-    char *cwd = getcwd(NULL, 0);
-
     km_set(MS_PROMPT_DEFAULT, DEFAULT_NORMAL_PROMPT, &context->variables);
     km_set(MS_PROMPT_FOLLOWUP, DEFAULT_FOLLOWUP_PROMPT, &context->variables);
     km_set(MS_VAR_ADDSUFFIX, NULL, &context->variables);
