@@ -17,9 +17,11 @@
 #include <unistd.h>
 #include <linux/limits.h>
 #include <sys/wait.h>
+
 #include "minishell1.h"
 #include "minishell2.h"
 #include "ms_builtins.h"
+#include "line_editor.h"
 
 void ms_teardown(ms_shell_context_t *context)
 {
@@ -140,6 +142,7 @@ int main(int argc, char **argv, char **env)
     safe_free(&lined.history[lined.history_index]);
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);
+    msle_history_clear(&lined, 0, 0);
     if (context.is_interactive)
         my_putstr("\n");
     return return_value == -1 ? context.last_exit_status : return_value;
