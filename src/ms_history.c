@@ -13,9 +13,9 @@
 
 void ms_free_history(ms_shell_context_t *ctx)
 {
-    for (size_t i = 1; i < ctx->history_index; ++i) {
-        safe_free(&ctx->history[i]);
-        safe_free(&ctx->time[i]);
+    for (int i = 0; i < ctx->history_index; ++i) {
+        safe_free(&ctx->history[i + 1]);
+        safe_free(&ctx->time[i + 1]);
     }
 }
 
