@@ -39,6 +39,11 @@
     #define MS_ENV_HOME "HOME"
     #define MS_ENV_PATH "PATH"
 
+    #define MS_NO_HISTORY "%d: Event not found.\n"
+    #define MS_NO_HISTORY2 "%s : Event not found.\n"
+    #define MAX_CMD 4096
+    #define HISTORY_CMD "!!"
+
 typedef struct ms_parser_s ms_parser_t;
 typedef struct ms_grammar_parser_s ms_grammar_parser_t;
 typedef struct ms_syntax_tree_s ms_syntax_tree_t;

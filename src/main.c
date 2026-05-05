@@ -10,6 +10,7 @@
 */
 
 #include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,9 +65,13 @@ int process_line(ms_shell_context_t *context, char *line)
     list_t *tokens;
     char *expanded;
 
-    if (!context || !line)
+    line = expand_history(line, context);
+    if (!context || !line || check_display(line, context)) {
+        safe_free(&line);
         return 1;
+    }
     expanded = expand_paths(line, context);
+    safe_free(&line);
     if (!expanded)
         return 1;
     tokens = cut_words(expanded, context);
@@ -121,8 +126,10 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 
     while (1) {
         display_prompt(context, lined);
-        if (read(STDIN_FILENO, &c, 1) != 1)
+        if (read(STDIN_FILENO, &c, 1) != 1) {
+            safe_free(&lined->history[lined->history_index]);
             return 84;
+        }
         if (command_eof(c, context))
             break;
         if (c == 0x04)
@@ -131,6 +138,8 @@ static int msle_mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
             continue;
         msle_add_character(lined, c);
     }
+    ms_free_history(context);
+    safe_free(&lined->history[lined->history_index]);
     return -1;
 }
 
@@ -161,7 +170,6 @@ int main(int argc, char **argv, char **env)
     prepare_variables(&context, argv, argc);
     context.reader = lr_from_stream(stdin);
     return_value = context.reader ? mainloop(&context, &lined) : 84;
-    safe_free(&lined.history[lined.history_index]);
     disable_raw_mode(&orig_termios);
     ms_teardown(&context);
     msle_history_clear(&lined, 0, 0);

@@ -39,6 +39,9 @@ SRC_FILENAMES = \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
 	ms_le_tools.c \
+	ms_history.c \
+	ms_history_case.c \
+	ms_history_utils.c \
 	ms_special_variables.c	\
 	ms_argv_variables.c	\
 	ms_builtins_list.c \
