@@ -24,7 +24,6 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
     buffer[part - str] = '\0';
     my_strcat(buffer, replacement);
     my_strcat(buffer, part + my_strlen(to_replace));
-    safe_free(&str);
     new_line = my_strdup(buffer);
     return new_line;
 }
