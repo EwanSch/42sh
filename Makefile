@@ -57,6 +57,14 @@ SRC_FILENAMES = \
 	builtins/ms_bi_colon.c	\
 	builtins/ms_bi_set.c	\
 	ms_var_substitution.c	\
+	ms_fs_glob_apply.c	\
+	ms_fs_glob_expand.c	\
+	ms_fs_glob_brace_expand.c	\
+	ms_fs_glob_read.c	\
+	ms_fs_glob_match.c	\
+	ms_fs_glob_range_match.c	\
+	ms_fs_glob_pattern.c	\
+	ms_fs_glob_utils.c	\
 	ll_to_str.c	\
 	my_recalloc.c	\
 	ms_mismatch.c

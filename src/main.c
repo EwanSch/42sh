@@ -21,6 +21,7 @@
 
 #include "minishell1.h"
 #include "minishell2.h"
+#include "globbing.h"
 #include "shell.h"
 #include "ms_builtins.h"
 #include "line_editor.h"
@@ -76,6 +77,8 @@ int process_line(ms_shell_context_t *context, char *line)
     tokens = cut_words(expanded, context);
     free(expanded);
     if (!tokens)
+        return 1;
+    if (apply_globbing(&tokens, context))
         return 1;
     return ms_runner(tokens, context);
 }
