@@ -62,18 +62,17 @@ int run_command(char **args, ms_shell_context_t *context)
     return run_other(args, context);
 }
 
-int process_line(ms_shell_context_t *context, char *line)
+int process_line(ms_shell_context_t *context, char **line)
 {
     list_t *tokens;
     char *expanded = NULL;
 
-    line = expand_history(line, context);
-    if (!context || !line)
+    *line = expand_history(*line, context);
+    if (!context || !*line || check_display(*line, context))
         return 1;
-    if (check_parentheses_basic(line))
+    if (check_parentheses_basic(*line))
         return 1;
-    expanded = expand_paths(line, context);
-    safe_free(&line);
+    expanded = expand_paths(*line, context);
     if (!expanded)
         return 1;
     tokens = cut_words(expanded, context);
@@ -153,7 +152,8 @@ static int mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
         context->line_buffer = lr_read(context->reader);
         if (!context->line_buffer)
             break;
-        context->last_exit_status = process_line(context, context->line_buffer);
+        context->last_exit_status =
+            process_line(context, &context->line_buffer);
         free(context->line_buffer);
     }
     return -1;
@@ -161,7 +161,7 @@ static int mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 
 int main(int argc, char **argv, char **env)
 {
-    struct termios orig_termios;
+    struct termios orig_termios = {0};
     ms_shell_context_t context = {0};
     ms_line_editor_t lined = {0};
     int return_value = 0;

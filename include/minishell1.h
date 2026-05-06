@@ -98,7 +98,7 @@ struct ms_editor_command_s {
 
 // Main
 void ms_teardown(ms_shell_context_t *context);
-int process_line(ms_shell_context_t *context, char *line);
+int process_line(ms_shell_context_t *context, char **line);
 
 // Path Utility
 int get_cmd_path(ms_shell_context_t *context, char *search, char *full_path);
