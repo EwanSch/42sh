@@ -48,14 +48,18 @@ static int visit_brackets(ms_syntax_tree_t *node,
     if (forked == 0) {
         dup2(fdin, STDIN_FILENO);
         dup2(fdout, STDOUT_FILENO);
-        exit(visit_sequence(node, context));
+        _exit(visit_sequence(node, context));
     }
     waitpid(forked, &status, 0);
     if (fdin != STDIN_FILENO)
         close(fdin);
     if (fdout != STDOUT_FILENO)
         close(fdout);
-    return status;
+    if (WIFEXITED(status))
+        return WEXITSTATUS(status);
+    if (WIFSIGNALED(status))
+        return 128 + WTERMSIG(status);
+    return MYSH_ERROR;
 }
 
 static int visit_command(ms_syntax_tree_t *node,
