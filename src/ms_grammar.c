@@ -132,6 +132,8 @@ static bool parse_redirection(ms_grammar_parser_t *grammar,
 static bool parse_command(ms_grammar_parser_t *grammar,
     ms_syntax_tree_t *parent, ms_syntax_tree_t **root)
 {
+    bool first_word = false;
+
     if (gr_match(grammar, MS_TOKEN_LEFT_BRACKET, true)) {
         if ((*root))
             return false;
@@ -140,10 +142,14 @@ static bool parse_command(ms_grammar_parser_t *grammar,
             return false;
         return parse_sequence(grammar, (*root));
     }
-    if (!(*root))
+    if (!(*root)) {
+        first_word = true;
         (*root) = ast_build(parent, MS_TREE_COMMAND);
+    }
     if (!(*root))
         return false;
+    if (first_word)
+        while (is_alias(grammar));
     push_word(grammar, (*root));
     return true;
 }
