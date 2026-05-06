@@ -24,6 +24,7 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
     buffer[part - str] = '\0';
     my_strcat(buffer, replacement);
     my_strcat(buffer, part + my_strlen(to_replace));
+    safe_free(&str);
     new_line = my_strdup(buffer);
     return new_line;
 }
@@ -52,41 +53,43 @@ static int get_the_num(char *line, ms_shell_context_t *ctx, int *is_less)
     return value;
 }
 
-static char *get_the_string(char *line, int *is_string)
+static char *get_the_string(char *line)
 {
-    char *tmp = my_strstr(line, "!");
-    int i = 1;
+    char *tmp = my_strdup(line);
+    size_t i = 1;
 
-    if (!tmp)
-        return line;
-    *is_string = (tmp[1] == '?');
-    if (*is_string && is_there_delimiter(tmp + 2, '?')) {
-        for (i = 2; tmp[i] && tmp[i] != '?'; i++);
-        tmp[i + (tmp[i] == '?')] = '\0';
-    } else {
-        for (; tmp[i] && tmp[i] != ' ' && tmp[i] != '\t'; i++);
-        tmp[i] = '\0';
+    tmp = my_strstr(line, "!");
+    if (tmp[1] == '?' && is_there_delimiter(tmp + 2, '?')) {
+        i++;
+        for (; tmp[i] != '?' && tmp[i] != '\0'; ++i);
+        tmp[i + 1] = '\0';
+        return tmp;
     }
+    if (tmp[1] == '?') {
+        i++;
+        for (; tmp[i] != '?' && tmp[i] != ' ' && tmp[i] != '\t'
+            && tmp[i] != '\0'; ++i);
+        tmp[i] = '\0';
+        return tmp;
+    }
+    for (; tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '\0'; ++i);
+    tmp[i] = '\0';
     return tmp;
 }
 
-static char *find_by_str(char *fd, ms_shell_context_t *ctx, int is_str)
+static char *find_by_str(char *to_find, ms_shell_context_t *ctx)
 {
-    if (!fd)
+    if (!to_find)
         return NULL;
-    fd += 1;
-    if (is_str)
-        fd += 1;
-    for (size_t i = 1; is_str && fd[i]; ++i) {
-        if (fd[i] == '?')
-            fd[i] = '\0';
+    to_find += 1;
+    if (to_find[1] == '?')
+        to_find += 1;
+    for (size_t i = 1; to_find[i]; ++i) {
+        if (to_find[i] == '?')
+            to_find[i] = '\0';
     }
     for (size_t i = 1; i < ctx->history_index + 1; ++i) {
-        if (is_str && my_strstr(ctx->history[i], fd) != NULL) {
-            my_printf("%s\n", ctx->history[i]);
-            return ctx->history[i];
-        }
-        if (!is_str && my_strncmp(ctx->history[i], fd, my_strlen(fd)) == 0) {
+        if (my_strstr(ctx->history[i], to_find) != NULL) {
             my_printf("%s\n", ctx->history[i]);
             return ctx->history[i];
         }
@@ -98,12 +101,11 @@ char *str_case(char *line, ms_shell_context_t *ctx)
 {
     char *new_cmd = NULL;
     char *last_cmd = NULL;
-    int is_string = 0;
-    char *to_replace = get_the_string(line, &is_string);
+    char *to_replace = get_the_string(line);
 
-    last_cmd = find_by_str(to_replace, ctx, is_string);
+    last_cmd = find_by_str(to_replace, ctx);
     if (!last_cmd) {
-        my_dprintf(2, MS_NO_HISTORY2, del_delimiter(to_replace, '?'));
+        my_dprintf(2, MS_NO_HISTORY2, del_delimiter(to_replace + 1, '?'));
         return NULL;
     }
     line = replace_str(line, to_replace, last_cmd);
