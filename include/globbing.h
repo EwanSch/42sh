@@ -27,8 +27,14 @@ typedef struct brace_s {
     char *close;
 } brace_t;
 
+typedef struct glob_ctx_s {
+    list_t **tokens;
+    ms_shell_context_t *ctx;
+    char *cmd;
+} glob_ctx_t;
+
 int is_glob_pattern(const char *str);
-void apply_globbing(list_t **tokens, ms_shell_context_t *ctx);
+int apply_globbing(list_t **tokens, ms_shell_context_t *ctx);
 
 /* core */
 char **glob_expand(char *pattern, ms_shell_context_t *ctx);

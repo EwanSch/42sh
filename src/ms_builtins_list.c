@@ -19,5 +19,10 @@ const ms_builtin_t ms_builtins_list[] = {
     { "exit", &ms_bi_exit },
     {"alias", &ms_bi_alias},
     {"unalias", &ms_bi_unalias},
+    {"which", &ms_bi_which},
+    {"where", &ms_bi_where},
+    {":", &ms_bi_colon},
+    {"chdir", &ms_bi_cd},
+    {"set", &ms_bi_set},
     { NULL, NULL }
 };

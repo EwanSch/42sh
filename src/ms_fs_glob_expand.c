@@ -11,30 +11,42 @@ char **list_to_array(list_t *lst)
 {
     int size = ll_size(lst);
     char **res = malloc(sizeof(char *) * (size + 1));
+    int i = 0;
 
     if (!res)
         return NULL;
-    for (int i = 0; i < size; i++)
+    while (i < size) {
         res[i] = ll_shift(&lst);
-    res[size] = NULL;
+        i++;
+    }
+    res[i] = NULL;
     return res;
 }
 
 static void append_matches(list_t **lst, char **res)
 {
-    for (int j = 0; res && res[j]; j++)
-        ll_push(lst, res[j]);
+    int j = 0;
+
+    if (!res)
+        return;
+    while (res[j]) {
+        ll_push(lst, my_strdup(res[j]));
+        j++;
+    }
 }
 
 static char **expand_braces(char **brace)
 {
     list_t *lst = NULL;
     char **res;
+    int i = 0;
 
-    for (int i = 0; brace[i]; i++) {
+    while (brace[i]) {
         res = read_dir_match(brace[i]);
         append_matches(&lst, res);
-        free(res);
+        if (res)
+            free_str_arr(res);
+        i++;
     }
     free_str_arr(brace);
     return list_to_array(lst);

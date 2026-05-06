@@ -31,6 +31,9 @@
     #define MYSH_IN_BUF_EXTENSION_STEP 256
     #define MYSH_ESC_SEQ_MAXLEN 64
 
+    #define MAX_TIME 6
+    #define CMD_STRING 64
+
 typedef struct ms_shell_context_s ms_shell_context_t;
 typedef struct ms_env_entry_s ms_env_entry_t;
 typedef struct km_entry_s km_entry_t;
@@ -67,7 +70,8 @@ typedef struct {
 struct ms_shell_context_s {
     char *line_buffer;
     unsigned char last_exit_status;
-    char *history[50];
+    char *history[MYSH_HISTORY_SIZE];
+    char *time[MYSH_HISTORY_SIZE];
     int history_index;
     char *last_working_dir;
     alias_t *alias;
@@ -113,12 +117,12 @@ int error(char const *format, ...);
 int my_getexit(char const *str);
 
 // Keymap Utility
-bool km_has(char const *key, keymap_t *keymap);
-char *km_get(char const *key, keymap_t *keymap);
-void km_set(char const *key, char const *value, keymap_t **keymap);
-void km_unset(char const *key, keymap_t **keymap);
-char *km_get_or_default(char const *key, keymap_t *keymap,
-    char *def);
+bool km_has(char *key, keymap_t *keymap);
+char *km_get(char *key, keymap_t *keymap);
+void km_set(char *key, char *value, keymap_t **keymap);
+void km_unset(char *key, keymap_t **keymap);
+char *km_get_or_default(char *key, keymap_t *keymap, char *deflt);
+bool km_match(char *key, char *value, keymap_t *keymap);
 
 // Env utils
 void ms_populate_env_from_dump(char **env_dump, ms_shell_context_t *context);
@@ -147,6 +151,21 @@ void msle_move_start(ms_line_editor_t *lined, int mod, int payload);
 void msle_move_end(ms_line_editor_t *lined, int mod, int payload);
 void msle_misc_codepoint(ms_line_editor_t *lined, int mod, int payload);
 
+// History utils
+char *expand_history(char *line, ms_shell_context_t *context);
+int check_display(char *line, ms_shell_context_t *ctx);
+void fill_the_history(ms_shell_context_t *context, char *line);
+int no_history(ms_shell_context_t *ctx, int index);
+
+char *free_secure_switch(void *new_command);
+void ms_free_history(ms_shell_context_t *ctx);
+int is_there_delimiter(char *line, char delim);
+char *del_delimiter(char *str, char delim);
+
+char *number_case(char *line, ms_shell_context_t *ctx);
+char *double_bang(char *line, ms_shell_context_t *ctx);
+char *str_case(char *line, ms_shell_context_t *ctx);
+
 // Line Editor Keybinds
 void msle_hit_enter(ms_shell_context_t *context, ms_line_editor_t *lined);
 void msle_hit_backspace(ms_line_editor_t *lined);
@@ -160,7 +179,6 @@ void msle_add_character(ms_line_editor_t *lined, char c);
 int msle_special_key(ms_shell_context_t *ctx, ms_line_editor_t *lined, char c);
 
 // Line Editor Escape Sequences
-
 void msle_read_full_escape(char *sequence, int seq_size, int *i);
 void msle_escape_seq_action(ms_line_editor_t *lined, char *seq, int mod);
 int msle_get_modifier_key(char *sequence);

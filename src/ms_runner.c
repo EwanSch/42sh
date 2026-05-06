@@ -7,10 +7,12 @@
 ** Amélie Ambleton--Guth
 */
 
+#include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "shell.h"
 #include "minishell2.h"
 #include "benjalib.h"
 #include "ms_grammar.h"
@@ -161,6 +163,7 @@ int ms_runner(list_t *tokens, ms_shell_context_t *context)
 {
     ms_syntax_tree_t *ast;
     int run_result = 0;
+    char exit_status[4];
 
     if (!tokens || !context)
         return MYSH_ERROR;
@@ -168,6 +171,8 @@ int ms_runner(list_t *tokens, ms_shell_context_t *context)
     if (!ast)
         return MYSH_ERROR;
     run_result = visit_sequence(ast, context);
+    snprintf(exit_status, sizeof(exit_status), "%d", run_result);
+    km_set(MS_VAR_STATUS, exit_status, &context->variables);
     free_ast(ast);
     return run_result;
 }
