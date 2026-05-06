@@ -71,24 +71,23 @@ static char *get_the_string(char *line, int *is_string)
     return tmp;
 }
 
-static char *find_by_str(char *to_find, ms_shell_context_t *ctx, int is_str)
+static char *find_by_str(char *fd, ms_shell_context_t *ctx, int is_str)
 {
-    if (!to_find)
+    if (!fd)
         return NULL;
-    to_find += 1;
+    fd += 1;
     if (is_str)
-        to_find += 1;
-    for (size_t i = 1; is_str && to_find[i]; ++i) {
-        if (to_find[i] == '?')
-            to_find[i] = '\0';
+        fd += 1;
+    for (size_t i = 1; is_str && fd[i]; ++i) {
+        if (fd[i] == '?')
+            fd[i] = '\0';
     }
     for (size_t i = 1; i < ctx->history_index + 1; ++i) {
-        if (is_str && my_strstr(ctx->history[i], to_find) != NULL) {
+        if (is_str && my_strstr(ctx->history[i], fd) != NULL) {
             my_printf("%s\n", ctx->history[i]);
             return ctx->history[i];
         }
-        if (!is_str && my_strncmp
-                (ctx->history[i], to_find, my_strlen(to_find)) == 0) {
+        if (!is_str && my_strncmp(ctx->history[i], fd, my_strlen(fd)) == 0) {
             my_printf("%s\n", ctx->history[i]);
             return ctx->history[i];
         }
