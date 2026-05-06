@@ -10,6 +10,7 @@
 */
 
 #include "minishell1.h"
+#include <stdio.h>
 
 void msle_history_up(ms_line_editor_t *lined, int mod, int payload)
 {
@@ -41,8 +42,9 @@ void msle_history_down(ms_line_editor_t *lined, int mod, int payload)
 
 void msle_history_clear(ms_line_editor_t *lined, int mod, int payload)
 {
-    for (int i = 0; i < lined->history_top + 1; i++)
+    for (int i = 1; i < lined->history_top; i++) {
         safe_free(&lined->history[i]);
+    }
     safe_free(&lined->input_buffer);
     lined->history_index = 0;
     lined->history_top = 0;
