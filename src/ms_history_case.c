@@ -19,7 +19,7 @@ static char *replace_str(char *str, char *to_replace, char *replacement)
     char *new_line = NULL;
 
     if (!part)
-        return my_strdup(str);
+        return str;
     my_strncpy(buffer, str, part - str);
     buffer[part - str] = '\0';
     my_strcat(buffer, replacement);
