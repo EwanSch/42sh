@@ -9,6 +9,7 @@
 
 #include "minishell2.h"
 #include "benjalib.h"
+#include "ms_grammar.h"
 
 static ms_token_type_t gr_current(ms_grammar_parser_t *grammar)
 {

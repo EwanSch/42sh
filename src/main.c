@@ -24,6 +24,7 @@
 #include "globbing.h"
 #include "shell.h"
 #include "ms_builtins.h"
+#include "ms_grammar.h"
 #include "line_editor.h"
 
 void ms_teardown(ms_shell_context_t *context)
@@ -69,15 +70,15 @@ int process_line(ms_shell_context_t *context, char *line)
     line = expand_history(line, context);
     if (!context || !line)
         return 1;
+    if (check_parentheses_basic(line))
+        return 1;
     expanded = expand_paths(line, context);
     safe_free(&line);
     if (!expanded)
         return 1;
     tokens = cut_words(expanded, context);
     free(expanded);
-    if (!tokens)
-        return 1;
-    if (apply_globbing(&tokens, context))
+    if (!tokens || apply_globbing(&tokens, context))
         return 1;
     return ms_runner(tokens, context);
 }

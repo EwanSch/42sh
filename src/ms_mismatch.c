@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "minishell1.h"
+#include "ms_grammar.h"
 
 static int find_match(char *str, int *stay, int i, char search)
 {
@@ -81,6 +82,29 @@ int mismatch(char *str)
             return 1;
     if (check_brace(str)) {
         printf("Missing '}'.\n");
+        return 1;
+    }
+    return 0;
+}
+
+int check_parentheses_basic(const char *line)
+{
+    int parentheses = 0;
+
+    for (int i = 0; line[i]; i++) {
+        if (line[i] == '(')
+            parentheses++;
+        if (line[i] == ')')
+            parentheses--;
+        if (parentheses < 0) {
+            write(2, MS_RIGHT_BRACKET_MUCH,
+                my_strlen(MS_RIGHT_BRACKET_MUCH));
+            return 1;
+        }
+    }
+    if (parentheses > 0) {
+        write(2, MS_LEFT_BRACKET_MUCH,
+            my_strlen(MS_LEFT_BRACKET_MUCH));
         return 1;
     }
     return 0;
