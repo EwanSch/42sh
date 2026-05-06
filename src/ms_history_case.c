@@ -55,29 +55,19 @@ static int get_the_num(char *line, ms_shell_context_t *ctx, int *is_less)
 
 static char *get_the_string(char *line, int *is_string)
 {
-    char *tmp = my_strdup(line);
-    size_t i = 1;
+    char *tmp = my_strstr(line, "!");
+    int i = 1;
 
-    tmp = my_strstr(line, "!");
     if (!tmp)
         return line;
-    if (tmp[1] == '?' && is_there_delimiter(tmp + 2, '?')) {
-        i++;
-        for (; tmp[i] != '?'; ++i);
-        tmp[i + 1] = '\0';
-        *is_string = 1;
-        return tmp;
-    }
-    if (tmp[1] == '?') {
-        i++;
-        for (; tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '\0'; ++i);
+    *is_string = (tmp[1] == '?');
+    if (*is_string && is_there_delimiter(tmp + 2, '?')) {
+        for (i = 2; tmp[i] && tmp[i] != '?'; i++);
+        tmp[i + (tmp[i] == '?')] = '\0';
+    } else {
+        for (; tmp[i] && tmp[i] != ' ' && tmp[i] != '\t'; i++);
         tmp[i] = '\0';
-        *is_string = 1;
-        return tmp;
     }
-    *is_string = 0;
-    for (; tmp[i] != ' ' && tmp[i] != '\t' && tmp[i] != '\0'; ++i);
-    tmp[i] = '\0';
     return tmp;
 }
 
@@ -97,7 +87,8 @@ static char *find_by_str(char *to_find, ms_shell_context_t *ctx, int is_str)
             my_printf("%s\n", ctx->history[i]);
             return ctx->history[i];
         }
-        if (!is_str && my_strncmp(ctx->history[i], to_find, my_strlen(to_find)) == 0) {
+        if (!is_str && my_strncmp
+                (ctx->history[i], to_find, my_strlen(to_find)) == 0) {
             my_printf("%s\n", ctx->history[i]);
             return ctx->history[i];
         }
