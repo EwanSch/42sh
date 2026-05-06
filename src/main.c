@@ -64,11 +64,13 @@ int run_command(char **args, ms_shell_context_t *context)
 int process_line(ms_shell_context_t *context, char *line)
 {
     list_t *tokens;
-    char *expanded = NULL;
+    char *expanded;
 
     line = expand_history(line, context);
-    if (!context || !line)
+    if (!context || !line || check_display(line, context)) {
+        safe_free(&line);
         return 1;
+    }
     expanded = expand_paths(line, context);
     safe_free(&line);
     if (!expanded)
