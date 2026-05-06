@@ -74,16 +74,13 @@ int process_line(ms_shell_context_t *context, char *line)
     }
     if (check_parentheses_basic(line))
         return 1;
-    }
     expanded = expand_paths(line, context);
     safe_free(&line);
     if (!expanded)
         return 1;
     tokens = cut_words(expanded, context);
     free(expanded);
-    if (!tokens)
-        return 1;
-    if (apply_globbing(&tokens, context))
+    if (!tokens || apply_globbing(&tokens, context))
         return 1;
     return ms_runner(tokens, context);
 }

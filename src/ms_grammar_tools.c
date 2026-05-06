@@ -57,26 +57,3 @@ ms_token_t *gr_match(ms_grammar_parser_t *grammar, ms_token_type_t type,
         free_token(token);
     return token;
 }
-
-int check_parentheses_basic(const char *line)
-{
-    int parentheses = 0;
-
-    for (int i = 0; line[i]; i++) {
-        if (line[i] == '(')
-            parentheses++;
-        if (line[i] == ')')
-            parentheses--;
-        if (parentheses < 0) {
-            write(2, MS_RIGHT_BRACKET_MUCH,
-                my_strlen(MS_RIGHT_BRACKET_MUCH));
-            return 1;
-        }
-    }
-    if (parentheses > 0) {
-        write(2, MS_LEFT_BRACKET_MUCH,
-                my_strlen(MS_LEFT_BRACKET_MUCH));
-        return 1;
-    }
-    return 0;
-}
