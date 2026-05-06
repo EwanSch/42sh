@@ -38,7 +38,7 @@ int match_range(const char *pattern, char c, int *i)
     }
     while (pattern[*i] && pattern[*i] != ']')
         update_match(pattern, c, i, &match);
-    while (pattern[*i] && pattern[*i] != ']')
-        (*i)++;
+    if (pattern[*i] != ']')
+        return 0;
     return neg ? !match : match;
 }

@@ -44,7 +44,8 @@ static char **expand_braces(char **brace)
     while (brace[i]) {
         res = read_dir_match(brace[i]);
         append_matches(&lst, res);
-        free_str_arr(res);
+        if (res)
+            free_str_arr(res);
         i++;
     }
     free_str_arr(brace);
