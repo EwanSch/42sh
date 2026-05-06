@@ -56,6 +56,7 @@ SRC_FILENAMES = \
 	builtins/ms_bi_where.c	\
 	builtins/ms_bi_colon.c	\
 	builtins/ms_bi_set.c	\
+	builtins/ms_bi_glob.c	\
 	ms_var_substitution.c	\
 	ms_fs_glob_apply.c	\
 	ms_fs_glob_expand.c	\
