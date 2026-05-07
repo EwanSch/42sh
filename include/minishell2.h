@@ -51,6 +51,15 @@ typedef struct ms_syntax_tree_s ms_syntax_tree_t;
 typedef struct ms_expression_s ms_expression_t;
 typedef struct ms_expre_list_s ms_expre_list_t;
 typedef struct ms_expre_word_s ms_expre_word_t;
+typedef struct ms_side_info_s ms_side_info_t;
+
+struct ms_side_info_s
+{
+    char **args;
+    char **right;
+    char **left;
+    int comp;
+};
 
 struct ms_expre_word_s {
     char *tokenisc;
@@ -206,7 +215,7 @@ char *str_destroyer(char *str, int *charac);
 
 int mismatch(char *str);
 
-bool is_alias(ms_grammar_parser_t *grammar);
+bool is_alias(ms_grammar_parser_t *grammar, char **exist, bool *err);
 
 char *ll_to_str(list_t **ll, char *in_btw, char *(find_data)(void *));
 void ll_dump(list_t *link, void(*print)(list_t *link));
@@ -219,6 +228,8 @@ int get_prio(char *ope);
 int get_ope(char *ope);
 int check_depth(ms_expression_t *expre);
 void free_func(list_t **buf);
+int calculate(list_t ***buf, ms_expression_t *expre, int ope, int *was_here);
+int check_depth(ms_expression_t *expre);
 
 char *array_to_str(char **arr);
 

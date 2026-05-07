@@ -16,62 +16,6 @@
 #include "minishell2.h"
 #include "benjalib/my.h"
 
-void free_func(list_t **buf)
-{
-    free(((ms_expre_word_t *)(*buf)->next->next->data)->tokenisc);
-    free((*buf)->next->next->data);
-    free((*buf)->next->next);
-    free(((ms_expre_word_t *)(*buf)->next->data)->tokenisc);
-    free((*buf)->next->data);
-    free((*buf)->next);
-    free(((ms_expre_word_t *)(*buf)->data)->tokenisc);
-    free((*buf)->data);
-    free(*buf);
-}
-
-static int change_depth(list_t **buf, int *was_here, ms_expression_t *expre)
-{
-    ms_expre_word_t *data;
-    ms_expre_word_t *data_next;
-
-    data = (*buf)->data;
-    if ((*buf)->next) {
-        data_next = (ms_expre_word_t *)(*buf)->next->data;
-    } else
-        return 1;
-    if (data->parenth != data_next->parenth &&
-        (!(*buf)->next->next ||
-            data_next->parenth != ((ms_expre_word_t *)
-                (*buf)->next->next->data)->parenth) &&
-        data_next->parenth == expre->max_depth) {
-        data_next->parenth--;
-        *was_here = 1;
-    }
-    return 0;
-}
-
-int check_depth(ms_expression_t *expre)
-{
-    list_t **buf = &expre->expre_list;
-    int was_here = 0;
-
-    if ((*buf)->next && ((ms_expre_word_t *)(*buf)->data)->parenth != ((ms_expre_word_t *)(*buf)->next->data)->parenth) {
-        ((ms_expre_word_t *)(*buf)->data)->parenth--;
-        was_here = 1;
-    }
-
-    for (; *buf; buf = &(*buf)->next) {
-        if (change_depth(buf, &was_here, expre))
-            break;
-    }
-    if (was_here) {
-        expre->max_depth--;
-        if (do_expre(expre))
-            return 84;
-    }
-    return 0;
-}
-
 void free_all_ll(void *data)
 {
     ms_expre_word_t *expre = data;
@@ -89,12 +33,8 @@ static long get_value(char **args, bool *err, int *cmd_place)
     for (; args[size]; size++)
         each_word(args[size], &expre, size);
     *cmd_place = size;
-    if (((ms_expre_word_t *)expre.expre_list->data)->tokenisi == -1) {
-        *err = true;
-        ll_free_linked(expre.expre_list, free_all_ll);
-        return 84;
-    }
-    if (do_expre(&expre) || expre.paren_depth) {
+    if (((ms_expre_word_t *)expre.expre_list->data)->tokenisi == -1 ||
+        do_expre(&expre) || expre.paren_depth) {
         *err = true;
         ll_free_linked(expre.expre_list, free_all_ll);
         return 84;
@@ -116,6 +56,19 @@ static int fill_arr(char ***arr, char *str, int size)
     return 0;
 }
 
+int res_output(int comp, long val1, long val2)
+{
+    if (comp == 1 && val1 == val2)
+        return 1;
+    if (comp == 1 && val1 != val2)
+        return 0;
+    if (comp == 2 && val1 != val2)
+        return 1;
+    if (comp == 2 && val1 == val2)
+        return 0;
+    return -1;
+}
+
 static int fuse_data(char **left, char **right, int comp, int *cmd_place)
 {
     int left_size = 0;
@@ -132,15 +85,7 @@ static int fuse_data(char **left, char **right, int comp, int *cmd_place)
     *cmd_place += place;
     if (err)
         return -1;
-    if (comp == 1 && val1 == val2)
-        return 1;
-    if (comp == 1 && val1 != val2)
-        return 0;
-    if (comp == 2 && val1 != val2)
-        return 1;
-    if (comp == 2 && val1 == val2)
-        return 0;
-    return -1;
+    return res_output(comp, val1, val2);
 }
 
 int reset_arr(int *comp, char **args, int i)
@@ -182,29 +127,14 @@ static int fill_both(char ***left, char ***right, int *comp, char **args)
     }
 }
 
-long ms_expression(char **args, char **cmd, bool *err)
+long two_data(char **cmd, bool *err, int cmd_place, ms_side_info_t *info)
 {
-    int comp = 0;
-    char **right = NULL;
-    char **left = NULL;
     long res = 0;
-    int cmd_place = 0;
 
-    fill_both(&left, &right, &comp, args);
-    if (!comp) {
-        res = get_value(left, err, &cmd_place);
-        *cmd = fill_cmd(args, cmd_place);
-        free_str_arr(left);
-        if (*err) {
-            free (*cmd);
-            *cmd = NULL;
-        }
-        return res;
-    }
-    res = fuse_data(left, right, comp, &cmd_place);
-    *cmd = fill_cmd(args, cmd_place + 1);
-    free_str_arr(left);
-    free_str_arr(right);
+    res = fuse_data(info->left, info->right, info->comp, &cmd_place);
+    *cmd = fill_cmd(info->args, cmd_place + 1);
+    free_str_arr(info->left);
+    free_str_arr(info->right);
     if (res == -1) {
         free(*cmd);
         *cmd = NULL;
@@ -213,4 +143,35 @@ long ms_expression(char **args, char **cmd, bool *err)
     else
         return res;
     return 0;
+}
+
+void fill_inf(char **right, char **left,
+    char **args, ms_side_info_t *info)
+{
+    info->right = right;
+    info->left = left;
+    info->args = args;
+}
+
+long ms_expression(char **args, char **cmd, bool *err)
+{
+    int comp = 0;
+    char **right = NULL;
+    char **left = NULL;
+    long res = 0;
+    int cmd_place = 0;
+    ms_side_info_t info = {0};
+
+    fill_both(&left, &right, &comp, args);
+    if (!comp) {
+        res = get_value(left, err, &cmd_place);
+        *cmd = fill_cmd(args, cmd_place);
+        free_str_arr(left);
+        if (*err)
+            safe_free (cmd);
+        return res;
+    }
+    info.comp = comp;
+    fill_inf(right, left, args, &info);
+    return two_data(cmd, err, cmd_place, &info);
 }

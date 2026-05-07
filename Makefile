@@ -77,7 +77,8 @@ SRC_FILENAMES = \
 	ms_operator.c	\
 	ms_expre_math.c	\
 	array_to_str.c	\
-	ll_free_linked.c
+	ll_free_linked.c	\
+	ms_calculate_val.c
 
 HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h \
 	ms_grammar.h ms_builtins.h globbing.h shell.h

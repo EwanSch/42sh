@@ -26,7 +26,7 @@ static void complete_token(list_t **head, list_t *temp)
     }
 }
 
-bool is_alias(ms_grammar_parser_t *grammar)
+bool is_alias(ms_grammar_parser_t *grammar, char **exist, bool *err)
 {
     alias_t **buf = &grammar->ctx_ref->alias;
     list_t **head = &grammar->tokens;
@@ -40,6 +40,14 @@ bool is_alias(ms_grammar_parser_t *grammar)
             buf = &(*buf)->next;
             continue;
         }
+        if (*exist && *exist == (*buf)->alias) {
+            dprintf(2, "Alias loop.\n");
+            *err = true;
+            return 0;
+        }
+        if (!*exist)
+            *exist = (*buf)->alias;
+
         gr_consume(grammar);
         temp = *head;
         *head = cut_words((*buf)->name, grammar->ctx_ref);

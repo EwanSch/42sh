@@ -27,6 +27,18 @@
 #include "ms_grammar.h"
 #include "line_editor.h"
 
+void free_alias(alias_t *alias)
+{
+    alias_t *temp = NULL;
+    while (alias) {
+        temp = alias->next;
+        free(alias->alias);
+        free(alias->name);
+        free(alias);
+        alias = temp;
+    }
+}
+
 void ms_teardown(ms_shell_context_t *context)
 {
     ms_env_entry_t *entry;
@@ -43,6 +55,7 @@ void ms_teardown(ms_shell_context_t *context)
         safe_free(&entry->value);
         safe_free(&entry);
     }
+    free_alias(context->alias);
     safe_free(&context->last_working_dir);
     safe_free(&context->line_buffer);
     if (context->reader)

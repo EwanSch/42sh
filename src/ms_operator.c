@@ -19,7 +19,7 @@
 int get_prio(char *ope)
 {
     if (!strcmp(ope, OPE_MULT))
-        return 3;
+        return 0;
     if (!strcmp(ope, OPE_DIV))
         return 4;
     if (!strcmp(ope, OPE_MOD))

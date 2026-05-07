@@ -131,6 +131,23 @@ static bool parse_redirection(ms_grammar_parser_t *grammar,
     return true;
 }
 
+static bool search_alias(ms_syntax_tree_t **root,
+    bool first_word, ms_grammar_parser_t *grammar)
+{
+    char *exist = NULL;
+    bool err = false;
+
+    if (!(*root))
+        return false;
+    if (first_word)
+        while (is_alias(grammar, &exist, &err));
+    if (err) {
+        free_token(gr_consume(grammar));
+        return false;
+    }
+    free(exist);
+}
+
 static bool parse_command(ms_grammar_parser_t *grammar,
     ms_syntax_tree_t *parent, ms_syntax_tree_t **root)
 {
@@ -148,10 +165,7 @@ static bool parse_command(ms_grammar_parser_t *grammar,
         first_word = true;
         (*root) = ast_build(parent, MS_TREE_COMMAND);
     }
-    if (!(*root))
-        return false;
-    if (first_word)
-        while (is_alias(grammar));
+    search_alias(root, first_word, grammar);
     push_word(grammar, (*root));
     return true;
 }
@@ -159,13 +173,11 @@ static bool parse_command(ms_grammar_parser_t *grammar,
 static bool parse_simple_command(ms_grammar_parser_t *grammar,
     ms_syntax_tree_t *parent)
 {
-    char *buf = NULL;
     ms_syntax_tree_t *root = NULL;
     bool all_good = true;
 
     if (gr_at_end(grammar))
         return true;
-    while (is_alias(grammar));
     while (1) {
         if (parse_redirection(grammar, parent))
             continue;
