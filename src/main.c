@@ -65,11 +65,12 @@ int run_command(char **args, ms_shell_context_t *context)
 int process_line(ms_shell_context_t *context, char **line)
 {
     list_t *tokens;
-    char *expanded;
+    char *expanded = NULL;
 
     *line = expand_history(*line, context);
-    if (!context || !*line || check_display(*line, context))
+    if (!context || !*line)
         return 1;
+    fill_the_history(context, *line);
     if (check_parentheses_basic(*line))
         return 1;
     expanded = expand_paths(*line, context);
