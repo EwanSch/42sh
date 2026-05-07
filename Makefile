@@ -47,10 +47,18 @@ SRC_FILENAMES = \
 	builtins/ms_bi_alias.c	\
 	builtins/ms_bi_unalias.c	\
 	builtins/ms_bi_exit.c	\
+	builtins/ms_bi_if.c	\
 	ms_var_substitution.c	\
 	ll_to_str.c	\
+	ll_dump.c	\
 	my_recalloc.c	\
-	ms_mismatch.c
+	ms_mismatch.c	\
+	ms_expression.c	\
+	ms_cut_args.c	\
+	ms_operator.c	\
+	ms_expre_math.c	\
+	array_to_str.c	\
+	ll_free_linked.c
 
 HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h
 CC ?= epiclang

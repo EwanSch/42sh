@@ -42,6 +42,26 @@
 typedef struct ms_parser_s ms_parser_t;
 typedef struct ms_grammar_parser_s ms_grammar_parser_t;
 typedef struct ms_syntax_tree_s ms_syntax_tree_t;
+typedef struct ms_expression_s ms_expression_t;
+typedef struct ms_expre_list_s ms_expre_list_t;
+typedef struct ms_expre_word_s ms_expre_word_t;
+
+struct ms_expre_word_s {
+    char *tokenisc;
+    int tokenisi;
+    int parenth;
+    int tokenid;
+};
+
+struct ms_expression_s {
+    int word_size;
+    int paren_depth;
+    int max_depth;
+    int cmd_place;
+    int tokenid;
+    char **args;
+    list_t *expre_list;
+};
 
 typedef enum {
     MS_QUOTE_NONE,
@@ -181,7 +201,19 @@ char *str_destroyer(char *str, int *charac);
 int mismatch(char *str);
 
 bool is_alias(ms_grammar_parser_t *grammar);
-char *ll_to_str(list_t **ll, char *in_btw);
 
+char *ll_to_str(list_t **ll, char *in_btw, char *(find_data)(void *));
+void ll_dump(list_t *link, void(*print)(list_t *link));
+void ll_free_linked(list_t *link, void(*free_func)(void *data));
+
+long ms_expression(char **args, char **cmd, bool *err);
+int each_word(char *args, ms_expression_t *expre, int i);
+int do_expre(ms_expression_t *expre);
+int get_prio(char *ope);
+int get_ope(char *ope);
+int check_depth(ms_expression_t *expre);
+void free_func(list_t **buf);
+
+char *array_to_str(char **arr);
 
 #endif

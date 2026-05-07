@@ -44,6 +44,11 @@ void show_alias(char *args, alias_t *alias)
     }
 }
 
+char *str_data(void *data)
+{
+    return data;
+}
+
 int insert_alias(char **args, alias_t **alias)
 {
     alias_t *new_node = malloc(sizeof(alias_t));
@@ -56,7 +61,12 @@ int insert_alias(char **args, alias_t **alias)
     for (int i = 1; args[i]; i++) {
         ll_push(&list, args[i]);
     }
-    str = ll_to_str(&list, " ");
+    str = ll_to_str(&list, " ", str_data);
+    for (alias_t *buf = *alias; buf; buf = buf->next)
+        if (!strcmp(args[0], buf->alias)) {
+            buf->name = str;
+            return 0;
+        }
     new_node->name = str;
     new_node->next = *alias;
     *alias = new_node;

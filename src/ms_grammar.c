@@ -67,6 +67,8 @@
 // the grammar ruleset will trigger an error
 // and prevent the execution of the input.
 
+#include <string.h>
+
 #include "minishell2.h"
 #include "benjalib.h"
 
@@ -131,13 +133,17 @@ static bool parse_redirection(ms_grammar_parser_t *grammar,
 static bool parse_simple_command(ms_grammar_parser_t *grammar,
     ms_syntax_tree_t *parent)
 {
+    char *buf = NULL;
     ms_syntax_tree_t *command_node = ast_build(parent, MS_TREE_COMMAND);
 
     if (!command_node)
         return false;
     if (gr_at_end(grammar))
         return true;
-    while (is_alias(grammar));
+    for (int count = 0; is_alias(grammar); count++) {
+        if (count == 0)
+            buf = strdup(grammar->tokens->data);
+    }
     while (1) {
         if (parse_redirection(grammar, parent))
             continue;
