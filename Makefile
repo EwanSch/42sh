@@ -72,7 +72,7 @@ SRC_FILENAMES = \
 HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h \
 	ms_grammar.h ms_builtins.h globbing.h shell.h
 
-CC = epiclang
+CC ?= epiclang
 
 SRC_DIR = src
 OBJ_DIR = build
