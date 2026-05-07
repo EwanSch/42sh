@@ -32,7 +32,7 @@ static int get_the_num(char *line, ms_shell_context_t *ctx, int *is_less)
 {
     size_t i = 0;
     char *str = my_strdup(line);
-    char *tmp = my_strstr(str, "!");
+    char *tmp = my_strstr(line, "!");
     int value = 0;
 
     tmp += 1;
@@ -114,10 +114,10 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     int is_less = 0;
     int value = get_the_num(line, ctx, &is_less);
 
-    if (no_history(ctx, (is_less < 0) ? is_less : value))
+    if (no_history(ctx, (is_less < 0) ? ctx->history_index + is_less + 1 : value))
         return NULL;
-    printf("GETING EVENT CMD AT INDEX: %d\n", value);
-    last_cmd = ctx->history[value];
+    last_cmd = (is_less < 0) ?
+        ctx->history[ctx->history_index + is_less + 1] : ctx->history[value];
     my_snprintf(to_replace, sizeof(to_replace),
         "!%d", (is_less < 0) ? is_less : value);
     line = replace_str(line, to_replace, last_cmd);

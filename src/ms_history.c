@@ -118,7 +118,6 @@ static char *div_expand_history(char *line, ms_shell_context_t *ctx,
 
 char *expand_history(char *line, ms_shell_context_t *ctx)
 {
-    char *last_cmd = NULL;
     char *new_line = NULL;
     int is_command = 0;
     int checked = 0;
