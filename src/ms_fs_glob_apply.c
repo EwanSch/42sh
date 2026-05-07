@@ -16,8 +16,21 @@ static int should_glob(ms_token_t *tok)
     return 1;
 }
 
+static int ignore_no_match(char *cmd)
+{
+    if (!cmd)
+        return 0;
+    if (my_strcmp(cmd, "echo") == 0)
+        return 1;
+    if (my_strcmp(cmd, "glob") == 0)
+        return 1;
+    return 0;
+}
+
 static int glob_error(glob_ctx_t *gctx)
 {
+    if (ignore_no_match(gctx->cmd))
+        return 0;
     my_dprintf(2, "%s: No match.\n", gctx->cmd);
     gctx->ctx->last_exit_status = 1;
     return 1;
@@ -39,12 +52,23 @@ static void insert_matches(list_t **tokens, list_t *node, char **matches)
     }
 }
 
+static int handle_no_match(char **matches, glob_ctx_t *gctx)
+{
+    if (!matches)
+        return glob_error(gctx);
+    if (!matches[0]) {
+        free_str_arr(matches);
+        return glob_error(gctx);
+    }
+    return 0;
+}
+
 static int handle_glob(list_t *cur, ms_token_t *tok, glob_ctx_t *gctx)
 {
     char **matches = glob_expand(tok->word_value, gctx->ctx);
 
-    if (!matches || !matches[0])
-        return glob_error(gctx);
+    if (handle_no_match(matches, gctx))
+        return 1;
     insert_matches(gctx->tokens, cur, matches);
     ll_remove_node(gctx->tokens, cur);
     free_token(tok);
@@ -52,22 +76,35 @@ static int handle_glob(list_t *cur, ms_token_t *tok, glob_ctx_t *gctx)
     return 0;
 }
 
+static void init_gctx(glob_ctx_t *gctx,
+    list_t **tokens, ms_shell_context_t *ctx)
+{
+    gctx->tokens = tokens;
+    gctx->ctx = ctx;
+    gctx->cmd = NULL;
+    if (*tokens)
+        gctx->cmd = ((ms_token_t *)(*tokens)->data)->word_value;
+}
+
+static int apply_token(list_t *cur, glob_ctx_t *gctx)
+{
+    ms_token_t *tok = cur->data;
+
+    if (!should_glob(tok))
+        return 0;
+    return handle_glob(cur, tok, gctx);
+}
+
 int apply_globbing(list_t **tokens, ms_shell_context_t *ctx)
 {
     list_t *cur = *tokens;
     list_t *next;
-    ms_token_t *tok;
     glob_ctx_t gctx;
 
-    gctx.tokens = tokens;
-    gctx.ctx = ctx;
-    gctx.cmd = NULL;
-    if (cur)
-        gctx.cmd = ((ms_token_t *)cur->data)->word_value;
+    init_gctx(&gctx, tokens, ctx);
     while (cur) {
         next = cur->next;
-        tok = cur->data;
-        if (should_glob(tok) && handle_glob(cur, tok, &gctx))
+        if (apply_token(cur, &gctx))
             return 1;
         cur = next;
     }

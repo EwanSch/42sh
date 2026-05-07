@@ -25,5 +25,6 @@ const ms_builtin_t ms_builtins_list[] = {
     {"chdir", &ms_bi_cd},
     {"set", &ms_bi_set},
     {"glob", &ms_bi_glob},
+    {"echo", &ms_bi_echo},
     { NULL, NULL }
 };
