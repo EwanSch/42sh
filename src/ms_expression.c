@@ -19,10 +19,13 @@
 void free_func(list_t **buf)
 {
     free(((ms_expre_word_t *)(*buf)->next->next->data)->tokenisc);
+    free((*buf)->next->next->data);
     free((*buf)->next->next);
     free(((ms_expre_word_t *)(*buf)->next->data)->tokenisc);
+    free((*buf)->next->data);
     free((*buf)->next);
     free(((ms_expre_word_t *)(*buf)->data)->tokenisc);
+    free((*buf)->data);
     free(*buf);
 }
 
