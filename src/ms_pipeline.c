@@ -47,7 +47,6 @@ bool is_alias(ms_grammar_parser_t *grammar, char **exist, bool *err)
         }
         if (!*exist)
             *exist = (*buf)->alias;
-
         gr_consume(grammar);
         temp = *head;
         *head = cut_words((*buf)->name, grammar->ctx_ref);

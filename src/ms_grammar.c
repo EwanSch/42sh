@@ -73,6 +73,8 @@
 #include "benjalib.h"
 #include "ms_grammar.h"
 
+#include "shell.h"
+
 ms_syntax_tree_t *ast_build(ms_syntax_tree_t *parent, ms_tree_type_t type)
 {
     ms_syntax_tree_t *node = my_calloc(1, sizeof(ms_syntax_tree_t));
@@ -129,23 +131,6 @@ static bool parse_redirection(ms_grammar_parser_t *grammar,
     ll_push(&redir_node->children, gr_consume(grammar));
     push_word(grammar, redir_node);
     return true;
-}
-
-static bool search_alias(ms_syntax_tree_t **root,
-    bool first_word, ms_grammar_parser_t *grammar)
-{
-    char *exist = NULL;
-    bool err = false;
-
-    if (!(*root))
-        return false;
-    if (first_word)
-        while (is_alias(grammar, &exist, &err));
-    if (err) {
-        free_token(gr_consume(grammar));
-        return false;
-    }
-    free(exist);
 }
 
 static bool parse_command(ms_grammar_parser_t *grammar,

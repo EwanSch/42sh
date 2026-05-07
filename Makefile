@@ -20,6 +20,7 @@ SRC_FILENAMES = \
 	ms_command_parser.c \
 	ms_errors.c \
 	ms_strutils.c \
+	ms_alias_util.c \
 	ms_grammar.c \
 	ms_grammar_tools.c \
 	ms_runner.c \

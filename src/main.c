@@ -30,6 +30,7 @@
 void free_alias(alias_t *alias)
 {
     alias_t *temp = NULL;
+
     while (alias) {
         temp = alias->next;
         free(alias->alias);

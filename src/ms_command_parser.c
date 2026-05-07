@@ -153,9 +153,8 @@ list_t *cut_words(char *string, ms_shell_context_t *context)
 {
     list_t *lst = NULL;
     ms_parser_t parser = {0};
-    char *var_string = NULL;
+    char *var_string = var_sub(string, context);
 
-    var_string = var_sub(string, context);
     if (mismatch(string) || !var_string) {
         if (var_string)
             free(var_string);

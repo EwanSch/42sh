@@ -21,10 +21,11 @@ char *fill_str(int size, char *in_btw, list_t *buf, char *(find_data)(void *))
     str[size] = '\0';
     while (buf) {
         if (curr)
-            my_snprintf(str, size + 1, "%s%s%s",
-                str, in_btw ? in_btw : "", find_data(buf->data));
+            my_snprintf(str, size + 1, "%s%s%s", str,
+                in_btw ? in_btw : "",
+                find_data ? find_data(buf->data) : buf->data);
         else
-            my_strcpy(str, find_data(buf->data));
+            my_strcpy(str, find_data ? find_data(buf->data) : buf->data);
         curr++;
         buf = buf->next;
     }

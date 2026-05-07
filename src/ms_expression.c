@@ -108,14 +108,14 @@ char *fill_cmd(char **args, int cmd_place)
     return array_to_str(&args[cmd_place]);
 }
 
-static int fill_both(char ***left, char ***right, int *comp, char **args)
+static void fill_both(char ***left, char ***right, int *comp, char **args)
 {
     int size = 0;
-    int found = 0;
+    bool found = false;
 
     for (int i = 0; args[i]; i++) {
         if (reset_arr(comp, args, i)) {
-            found = 1;
+            found = true;
             size = 0;
             i++;
         }
@@ -139,8 +139,7 @@ long two_data(char **cmd, bool *err, int cmd_place, ms_side_info_t *info)
         free(*cmd);
         *cmd = NULL;
         *err = true;
-    }
-    else
+    } else
         return res;
     return 0;
 }
@@ -168,7 +167,7 @@ long ms_expression(char **args, char **cmd, bool *err)
         *cmd = fill_cmd(args, cmd_place);
         free_str_arr(left);
         if (*err)
-            safe_free (cmd);
+            safe_free(cmd);
         return res;
     }
     info.comp = comp;
