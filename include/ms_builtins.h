@@ -31,5 +31,7 @@ int ms_bi_which(ms_shell_context_t *context, char **argv);
 int ms_bi_where(ms_shell_context_t *context, char **argv);
 int ms_bi_colon(ms_shell_context_t *context, char **args);
 int ms_bi_set(ms_shell_context_t *context, char **args);
+int ms_bi_glob(ms_shell_context_t *context, char **args);
+int ms_bi_echo(ms_shell_context_t *context, char **args);
 
 #endif
