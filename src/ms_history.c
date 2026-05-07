@@ -48,7 +48,6 @@ int check_display(char *line, ms_shell_context_t *ctx)
         }
         return 1;
     }
-    fill_the_history(ctx, line);
     return 0;
 }
 
@@ -134,6 +133,7 @@ char *expand_history(char *line, ms_shell_context_t *ctx)
         new_line = expand_history(new_line, ctx);
     if (new_line != NULL) {
         line = my_strdup(new_line);
+        my_printf("%s\n", line);
         safe_free(&new_line);
     }
     if (check_display(line, ctx))

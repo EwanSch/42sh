@@ -56,10 +56,16 @@ int is_there_delimiter(char *line, char delim)
 
 char *del_delimiter(char *str, char delim)
 {
+    int condition = 1;
+    int to_move = 1;
+
     for (size_t i = 1; str[i]; ++i) {
-        if (str[i] == delim)
+        if (str[i] == delim && condition)
+            condition = 0;
+        if (str[i] == delim && !condition) {
             str[i] = '\0';
-        return str;
+            to_move++;
+        }
     }
-    return str;
+    return str + to_move;
 }
