@@ -163,6 +163,7 @@ list_t *cut_words(char *string, ms_shell_context_t *context)
     var_string = var_sub(string, context);
     if (mismatch(string) || !var_string) {
         context->last_exit_status = 1;
+        safe_free(&var_string);
         return NULL;
     }
     for (int i = 0; var_string[i]; i++) {
@@ -172,6 +173,7 @@ list_t *cut_words(char *string, ms_shell_context_t *context)
         }
         i += delimit_words(var_string + i, &lst, &parser) - 1;
     }
+    safe_free(&var_string);
     add_token(&lst, NULL, 0);
     return lst;
 }

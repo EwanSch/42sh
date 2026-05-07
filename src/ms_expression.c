@@ -203,7 +203,7 @@ long ms_expression(char **args, char **cmd, bool *err)
     free_str_arr(left);
     free_str_arr(right);
     if (res == -1) {
-        free (*cmd);
+        free(*cmd);
         *cmd = NULL;
         *err = true;
     }

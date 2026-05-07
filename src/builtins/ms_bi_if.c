@@ -35,6 +35,7 @@ int ms_bi_if(ms_shell_context_t *ctx, char **args)
             return res;
         }
     } else
-        return 1;
-    return 0;
+        res = 1;
+    safe_free(&cmd);
+    return res;
 }
