@@ -48,7 +48,6 @@ int check_display(char *line, ms_shell_context_t *ctx)
         }
         return 1;
     }
-    fill_the_history(ctx, line);
     return 0;
 }
 
@@ -71,9 +70,9 @@ static int target_is_str(char *line)
 {
     char *str = my_strstr(line, "!");
 
-    if (!str)
+    if (!str || !str[1])
         return 0;
-    if (str[1] == '?')
+    if (str[1] == '?' && str[2])
         return my_isalpha(str[2]);
     return my_isalpha(str[1]);
 }
@@ -119,7 +118,6 @@ static char *div_expand_history(char *line, ms_shell_context_t *ctx,
 
 char *expand_history(char *line, ms_shell_context_t *ctx)
 {
-    char *last_cmd = NULL;
     char *new_line = NULL;
     int is_command = 0;
     int checked = 0;
@@ -131,6 +129,13 @@ char *expand_history(char *line, ms_shell_context_t *ctx)
     if (!new_line && checked)
         return NULL;
     if (is_command > 0 && new_line != NULL)
-        line = expand_history(new_line, ctx);
+        new_line = expand_history(new_line, ctx);
+    if (new_line != NULL) {
+        line = my_strdup(new_line);
+        my_printf("%s\n", line);
+        safe_free(&new_line);
+    }
+    if (check_display(line, ctx))
+        return NULL;
     return line;
 }

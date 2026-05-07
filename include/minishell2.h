@@ -20,6 +20,7 @@
     #define PARSER_ESCAPING(x) ((x)->backslashed || PARSER_QUOTING(x))
 
     #define VIS_VALID(x, y, z) (!(x) || y->type != z)
+    #define VIS_CHILD(x, y) ((ms_syntax_tree_t *) x->children[y].data)
 
     #define RECORD_SEPARATOR '\x1e'
 
@@ -187,6 +188,5 @@ int mismatch(char *str);
 
 bool is_alias(ms_grammar_parser_t *grammar);
 char *ll_to_str(list_t **ll, char *in_btw);
-
 
 #endif

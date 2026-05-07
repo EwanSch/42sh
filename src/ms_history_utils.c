@@ -8,6 +8,7 @@
 #include "minishell1.h"
 #include "minishell2.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 char *free_secure_switch(void *new_command)
@@ -29,13 +30,10 @@ int no_history(ms_shell_context_t *ctx, int index)
     int value = 0;
 
     value = index >= 0 ? value : 1;
-    value = (ctx->history_index == 0 && value == 0) ? 2 : value;
+    value = (ctx->history_index == 0 &&
+        ctx->history_index == index && value == 0) ? 2 : value;
     value = (!ctx->history[index] && value == 0) ? 3 : value;
-    if (value == 1) {
-        my_dprintf(2, MS_NO_HISTORY, index + 1);
-        return 1;
-    }
-    if (value == 3) {
+    if (value == 3 || value == 1) {
         my_dprintf(2, MS_NO_HISTORY, index);
         return 1;
     }
@@ -56,10 +54,16 @@ int is_there_delimiter(char *line, char delim)
 
 char *del_delimiter(char *str, char delim)
 {
+    int condition = 1;
+    int to_move = 1;
+
     for (size_t i = 1; str[i]; ++i) {
-        if (str[i] == delim)
+        if (str[i] == delim && condition)
+            condition = 0;
+        if (str[i] == delim && !condition) {
             str[i] = '\0';
-        return str;
+            to_move++;
+        }
     }
-    return str;
+    return str + to_move;
 }

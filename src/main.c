@@ -24,6 +24,7 @@
 #include "globbing.h"
 #include "shell.h"
 #include "ms_builtins.h"
+#include "ms_grammar.h"
 #include "line_editor.h"
 
 void ms_teardown(ms_shell_context_t *context)
@@ -61,25 +62,23 @@ int run_command(char **args, ms_shell_context_t *context)
     return run_other(args, context);
 }
 
-int process_line(ms_shell_context_t *context, char *line)
+int process_line(ms_shell_context_t *context, char **line)
 {
     list_t *tokens;
-    char *expanded;
+    char *expanded = NULL;
 
-    line = expand_history(line, context);
-    if (!context || !line || check_display(line, context)) {
-        safe_free(&line);
+    *line = expand_history(*line, context);
+    if (!context || !*line)
         return 1;
-    }
-    expanded = expand_paths(line, context);
-    safe_free(&line);
+    fill_the_history(context, *line);
+    if (check_parentheses_basic(*line))
+        return 1;
+    expanded = expand_paths(*line, context);
     if (!expanded)
         return 1;
     tokens = cut_words(expanded, context);
     free(expanded);
-    if (!tokens)
-        return 1;
-    if (apply_globbing(&tokens, context))
+    if (!tokens || apply_globbing(&tokens, context))
         return 1;
     return ms_runner(tokens, context);
 }
@@ -154,7 +153,8 @@ static int mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
         context->line_buffer = lr_read(context->reader);
         if (!context->line_buffer)
             break;
-        context->last_exit_status = process_line(context, context->line_buffer);
+        context->last_exit_status =
+            process_line(context, &context->line_buffer);
         free(context->line_buffer);
     }
     return -1;
@@ -162,7 +162,7 @@ static int mainloop(ms_shell_context_t *context, ms_line_editor_t *lined)
 
 int main(int argc, char **argv, char **env)
 {
-    struct termios orig_termios;
+    struct termios orig_termios = {0};
     ms_shell_context_t context = {0};
     ms_line_editor_t lined = {0};
     int return_value = 0;
