@@ -16,13 +16,6 @@
 #include "minishell2.h"
 #include "benjalib/my.h"
 
-char *find_str(void *data)
-{
-    ms_expre_word_t *expre = data;
-
-    return expre->tokenisc;
-}
-
 static int search_op(list_t ***buf, int(get_opera)(char *),
     int *ope, ms_expression_t *expre)
 {
@@ -42,7 +35,7 @@ static int search_op(list_t ***buf, int(get_opera)(char *),
     return 0;
 }
 
-int search_data(list_t ***buf, ms_expression_t *expre,
+static int search_data(list_t ***buf, ms_expression_t *expre,
     int(get_opera)(char *), int *was_here)
 {
     int ope = 0;
@@ -61,7 +54,7 @@ int search_data(list_t ***buf, ms_expression_t *expre,
     return 0;
 }
 
-int can_continue(int *was_here)
+static int can_continue(int *was_here)
 {
     if (*was_here) {
         *was_here = 0;
@@ -70,7 +63,7 @@ int can_continue(int *was_here)
     return 0;
 }
 
-int do_math(ms_expression_t *expre, int(get_opera)(char *))
+static int do_math(ms_expression_t *expre, int(get_opera)(char *))
 {
     list_t **buf = &expre->expre_list;
     int was_here = 0;
@@ -92,6 +85,15 @@ int do_math(ms_expression_t *expre, int(get_opera)(char *))
         buf = &(*buf)->next;
     }
     return 0;
+}
+
+int expre_compare(int comp, long val1, long val2)
+{
+    if (comp == 1)
+        return val1 == val2;
+    if (comp == 2)
+        return val1 != val2;
+    return -1;
 }
 
 int do_expre(ms_expression_t *expre)

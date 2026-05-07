@@ -33,7 +33,7 @@ static int is_solo_word(char const *string)
     if (string[0] == string[1] && my_strchr("&|<>", *string))
         return 2;
     if (my_strchr("&;|<>()", *string))
-        return 0;       // HERE WAS ORIGINALLY 1
+        return 1;
     return 0;
 }
 

@@ -35,7 +35,8 @@ static void show_alias(char *args, alias_t *alias)
     }
 }
 
-static int alias_exist(alias_t **alias, char **args, alias_t *new_node, char *str)
+static int alias_exist(alias_t **alias, char **args,
+    alias_t *new_node, char *str)
 {
     for (alias_t *buf = *alias; buf; buf = buf->next)
         if (!strcmp(args[0], buf->alias)) {

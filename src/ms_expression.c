@@ -16,7 +16,7 @@
 #include "minishell2.h"
 #include "benjalib/my.h"
 
-void free_all_ll(void *data)
+static void free_all_ll(void *data)
 {
     ms_expre_word_t *expre = data;
 
@@ -56,19 +56,6 @@ static int fill_arr(char ***arr, char *str, int size)
     return 0;
 }
 
-int res_output(int comp, long val1, long val2)
-{
-    if (comp == 1 && val1 == val2)
-        return 1;
-    if (comp == 1 && val1 != val2)
-        return 0;
-    if (comp == 2 && val1 != val2)
-        return 1;
-    if (comp == 2 && val1 == val2)
-        return 0;
-    return -1;
-}
-
 static int fuse_data(char **left, char **right, int comp, int *cmd_place)
 {
     int left_size = 0;
@@ -85,10 +72,10 @@ static int fuse_data(char **left, char **right, int comp, int *cmd_place)
     *cmd_place += place;
     if (err)
         return -1;
-    return res_output(comp, val1, val2);
+    return expre_compare(comp, val1, val2);
 }
 
-int reset_arr(int *comp, char **args, int i)
+static int reset_arr(int *comp, char **args, int i)
 {
     if (!strcmp(args[i], "==")) {
         *comp = 1;
@@ -127,7 +114,7 @@ static void fill_both(char ***left, char ***right, int *comp, char **args)
     }
 }
 
-long two_data(char **cmd, bool *err, int cmd_place, ms_side_info_t *info)
+static long two_data(char **cmd, bool *err, int cmd_place, ms_side_info_t *info)
 {
     long res = 0;
 
@@ -144,7 +131,7 @@ long two_data(char **cmd, bool *err, int cmd_place, ms_side_info_t *info)
     return 0;
 }
 
-void fill_inf(char **right, char **left,
+static void fill_inf(char **right, char **left,
     char **args, ms_side_info_t *info)
 {
     info->right = right;

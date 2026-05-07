@@ -229,7 +229,9 @@ int get_ope(char *ope);
 int check_depth(ms_expression_t *expre);
 void free_func(list_t **buf);
 int calculate(list_t ***buf, ms_expression_t *expre, int ope, int *was_here);
-int check_depth(ms_expression_t *expre);
+int expre_compare(int comp, long val1, long val2);
+bool search_alias(ms_syntax_tree_t **root,
+    bool first_word, ms_grammar_parser_t *grammar);
 
 char *array_to_str(char **arr);
 

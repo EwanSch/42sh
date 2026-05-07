@@ -33,7 +33,7 @@ static int change_depth(list_t **buf, int *was_here, ms_expression_t *expre)
         data_next->parenth == expre->max_depth) {
         data_next->parenth--;
         *was_here = 1;
-        }
+    }
     return 0;
 }
 
@@ -46,8 +46,7 @@ int check_depth(ms_expression_t *expre)
         ((ms_expre_word_t *)(*buf)->next->data)->parenth) {
         ((ms_expre_word_t *)(*buf)->data)->parenth--;
         was_here = 1;
-        }
-
+    }
     for (; *buf; buf = &(*buf)->next) {
         if (change_depth(buf, &was_here, expre))
             break;

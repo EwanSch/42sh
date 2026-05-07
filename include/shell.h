@@ -11,6 +11,7 @@
     #define SHELL_H
 
     #include "minishell1.h"
+    #include "ms_grammar.h"
 
     #define MS_VAR_TERM "term"
     #define MS_VAR_CWD "cwd"
@@ -42,7 +43,5 @@ int command_eof(char c, ms_shell_context_t *context);
 void save_argv(ms_shell_context_t *context, char **argv, int argc);
 
 int is_builtin(ms_shell_context_t *context, char *args);
-bool search_alias(ms_syntax_tree_t **root,
-    bool first_word, ms_grammar_parser_t *grammar);
 
 #endif
