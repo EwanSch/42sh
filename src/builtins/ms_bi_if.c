@@ -30,7 +30,7 @@ int ms_bi_if(ms_shell_context_t *ctx, char **args)
             dprintf(1, "if: Empty if.\n");
         }
         if (cmd && nbr > 0) {
-            res = process_line(ctx, cmd);
+            res = process_line(ctx, &cmd);
             free(cmd);
             return res;
         }

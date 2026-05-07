@@ -68,6 +68,7 @@ int ms_prompt(ms_shell_context_t *context, char *type)
     prompt = km_get(type, context->variables);
     if (!prompt)
         return 1;
+    my_putchar('\r');
     ms_write_prompt(prompt, context);
     return 0;
 }

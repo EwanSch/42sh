@@ -39,6 +39,11 @@ SRC_FILENAMES = \
 	ms_le_esc_sequence.c \
 	ms_le_keybinds.c \
 	ms_le_tools.c \
+	ms_history.c \
+	ms_history_case.c \
+	ms_history_utils.c \
+	ms_special_variables.c	\
+	ms_argv_variables.c	\
 	ms_builtins_list.c \
 	builtins/ms_bi_env.c \
 	builtins/ms_bi_setenv.c \
@@ -48,7 +53,21 @@ SRC_FILENAMES = \
 	builtins/ms_bi_unalias.c	\
 	builtins/ms_bi_exit.c	\
 	builtins/ms_bi_if.c	\
+	builtins/ms_bi_which.c	\
+	builtins/ms_bi_where.c	\
+	builtins/ms_bi_colon.c	\
+	builtins/ms_bi_set.c	\
+	builtins/ms_bi_glob.c	\
+	builtins/ms_bi_echo.c	\
 	ms_var_substitution.c	\
+	ms_fs_glob_apply.c	\
+	ms_fs_glob_expand.c	\
+	ms_fs_glob_brace_expand.c	\
+	ms_fs_glob_read.c	\
+	ms_fs_glob_match.c	\
+	ms_fs_glob_range_match.c	\
+	ms_fs_glob_pattern.c	\
+	ms_fs_glob_utils.c	\
 	ll_to_str.c	\
 	ll_dump.c	\
 	my_recalloc.c	\
@@ -60,7 +79,9 @@ SRC_FILENAMES = \
 	array_to_str.c	\
 	ll_free_linked.c
 
-HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h
+HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h \
+	ms_grammar.h ms_builtins.h globbing.h shell.h
+
 CC ?= epiclang
 
 SRC_DIR = src
