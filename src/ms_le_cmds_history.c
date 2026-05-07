@@ -41,7 +41,7 @@ void msle_history_down(ms_line_editor_t *lined, int mod, int payload)
 
 void msle_history_clear(ms_line_editor_t *lined, int mod, int payload)
 {
-    for (int i = 1; i < lined->history_top; i++)
+    for (int i = 1; i <= lined->history_top; i++)
         safe_free(&lined->history[i]);
     safe_free(&lined->input_buffer);
     lined->history_index = 0;
