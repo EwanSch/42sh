@@ -48,7 +48,6 @@
 //     '+' matches the token between 1 and unlimited times
 
 // root:             'sequence' - top-level node
-// simple_command:   '( sequence )'
 // redirection:      '< WORD'
 // redirection:      '<< WORD'
 // redirection:      '> WORD'
@@ -61,6 +60,7 @@
 // pipeline:         'pipeline | simple_command'
 // pipeline:         'simple_command'
 // simple_command:   'redirection* command redirection*'
+// command:          '( sequence )'
 // command:          'WORD+'
 
 // Any remaining token that does not fit in
@@ -71,6 +71,7 @@
 
 #include "minishell2.h"
 #include "benjalib.h"
+#include "ms_grammar.h"
 
 ms_syntax_tree_t *ast_build(ms_syntax_tree_t *parent, ms_tree_type_t type)
 {
@@ -130,29 +131,50 @@ static bool parse_redirection(ms_grammar_parser_t *grammar,
     return true;
 }
 
+static bool parse_command(ms_grammar_parser_t *grammar,
+    ms_syntax_tree_t *parent, ms_syntax_tree_t **root)
+{
+    bool first_word = false;
+
+    if (gr_match(grammar, MS_TOKEN_LEFT_BRACKET, true)) {
+        if ((*root))
+            return false;
+        (*root) = ast_build(parent, MS_TREE_SEQUENCE);
+        if (!(*root))
+            return false;
+        return parse_sequence(grammar, (*root));
+    }
+    if (!(*root)) {
+        first_word = true;
+        (*root) = ast_build(parent, MS_TREE_COMMAND);
+    }
+    if (!(*root))
+        return false;
+    if (first_word)
+        while (is_alias(grammar));
+    push_word(grammar, (*root));
+    return true;
+}
+
 static bool parse_simple_command(ms_grammar_parser_t *grammar,
     ms_syntax_tree_t *parent)
 {
     char *buf = NULL;
-    ms_syntax_tree_t *command_node = ast_build(parent, MS_TREE_COMMAND);
+    ms_syntax_tree_t *root = NULL;
+    bool all_good = true;
 
-    if (!command_node)
-        return false;
     if (gr_at_end(grammar))
         return true;
-    for (int count = 0; is_alias(grammar); count++) {
-        if (count == 0)
-            buf = strdup(grammar->tokens->data);
-    }
+    while (is_alias(grammar));
     while (1) {
         if (parse_redirection(grammar, parent))
             continue;
-        if (gr_testfor(grammar, MS_TOKEN_WORD))
-            push_word(grammar, command_node);
-        else
+        if (!gr_testfor(grammar, MS_TOKEN_WORD) &&
+            !gr_testfor(grammar, MS_TOKEN_LEFT_BRACKET))
             break;
+        all_good = parse_command(grammar, parent, &root);
     }
-    return true;
+    return all_good;
 }
 
 static bool parse_pipeline(ms_grammar_parser_t *grammar,
@@ -207,13 +229,14 @@ static bool parse_sequence(ms_grammar_parser_t *grammar, ms_syntax_tree_t *root)
         if (!node)
             break;
         valid = parse_and_or(grammar, node);
+        if (gr_match(grammar, MS_TOKEN_RIGHT_BRACKET, true))
+            break;
         if (!gr_match(grammar, MS_TOKEN_SEMICOLON, true) &&
             !gr_at_end(grammar)) {
             grammar->errored = true;
             break;
         }
     }
-    free_grammar(grammar);
     return valid;
 }
 
@@ -228,6 +251,7 @@ ms_syntax_tree_t *ms_generate_ast(list_t *tokens, ms_shell_context_t *context)
     root->ctx_ref = context;
     grammar.tokens = tokens;
     grammar.errored |= !parse_sequence(&grammar, root);
+    free_grammar(&grammar);
     if (grammar.errored) {
         context->last_exit_status = MYSH_ERROR;
         if (!grammar.ctx_ref->is_interactive)

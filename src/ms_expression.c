@@ -192,7 +192,7 @@ long ms_expression(char **args, char **cmd, bool *err)
         res = get_value(left, err, &cmd_place);
         *cmd = fill_cmd(args, cmd_place);
         free_str_arr(left);
-        if (err) {
+        if (*err) {
             free (*cmd);
             *cmd = NULL;
         }

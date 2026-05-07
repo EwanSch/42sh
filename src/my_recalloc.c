@@ -14,8 +14,11 @@ void *my_recalloc(void *str, size_t new_size)
 {
     void *new_str = calloc(1, new_size);
 
-    if (!new_str)
+    if (!new_str) {
+        if (str)
+            free(str);
         return NULL;
+    }
     memset(new_str, 0, new_size);
     if (!str)
         return new_str;
