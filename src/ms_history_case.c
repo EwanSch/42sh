@@ -111,15 +111,15 @@ char *number_case(char *line, ms_shell_context_t *ctx)
     char *new_cmd = NULL;
     char *last_cmd = NULL;
     char to_replace[CMD_STRING];
-    int is_less = 0;
-    int value = get_the_num(line, ctx, &is_less);
+    int less = 0;
+    int value = get_the_num(line, ctx, &less);
 
-    if (no_history(ctx, (is_less < 0) ? ctx->history_index + is_less + 1 : value))
+    if (no_history(ctx, (less < 0) ? ctx->history_index + less + 1 : value))
         return NULL;
-    last_cmd = (is_less < 0) ?
-        ctx->history[ctx->history_index + is_less + 1] : ctx->history[value];
+    last_cmd = (less < 0) ?
+        ctx->history[ctx->history_index + less + 1] : ctx->history[value];
     my_snprintf(to_replace, sizeof(to_replace),
-        "!%d", (is_less < 0) ? is_less : value);
+        "!%d", (less < 0) ? less : value);
     line = replace_str(line, to_replace, last_cmd);
     return line;
 }
