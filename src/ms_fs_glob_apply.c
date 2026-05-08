@@ -93,7 +93,7 @@ int apply_globbing(list_t **tokens,
 
     if (!cur)
         return 0;
-    if (my_strcmp("if", ((ms_token_t *) (*tokens)->data)->word_value))
+    if (my_strcmp("if", ((ms_token_t *) (*tokens)->data)->word_value) == 0)
         return 0;
     init_gctx(&gctx, tokens, ctx);
     while (cur) {
