@@ -16,27 +16,15 @@ static int should_glob(ms_token_t *tok)
     return 1;
 }
 
-static int ignore_no_match(char *cmd)
-{
-    if (!cmd)
-        return 0;
-    if (my_strcmp(cmd, "echo") == 0)
-        return 1;
-    if (my_strcmp(cmd, "glob") == 0)
-        return 1;
-    return 0;
-}
-
 static int glob_error(glob_ctx_t *gctx)
 {
-    if (ignore_no_match(gctx->cmd))
-        return 0;
     my_dprintf(2, "%s: No match.\n", gctx->cmd);
     gctx->ctx->last_exit_status = 1;
     return 1;
 }
 
-static void insert_matches(list_t **tokens, list_t *node, char **matches)
+static void insert_matches(list_t **tokens,
+    list_t *node, char **matches)
 {
     ms_token_t *new;
     int i = 0;
@@ -52,23 +40,24 @@ static void insert_matches(list_t **tokens, list_t *node, char **matches)
     }
 }
 
-static int handle_no_match(char **matches, glob_ctx_t *gctx)
+static int has_no_match(char **matches)
 {
     if (!matches)
-        return glob_error(gctx);
-    if (!matches[0]) {
-        free_str_arr(matches);
-        return glob_error(gctx);
-    }
+        return 1;
+    if (!matches[0])
+        return 1;
     return 0;
 }
 
-static int handle_glob(list_t *cur, ms_token_t *tok, glob_ctx_t *gctx)
+static int handle_glob(list_t *cur,
+    ms_token_t *tok, glob_ctx_t *gctx)
 {
     char **matches = glob_expand(tok->word_value, gctx->ctx);
 
-    if (handle_no_match(matches, gctx))
-        return 1;
+    if (has_no_match(matches)) {
+        free_str_arr(matches);
+        return glob_error(gctx);
+    }
     insert_matches(gctx->tokens, cur, matches);
     ll_remove_node(gctx->tokens, cur);
     free_token(tok);
@@ -95,12 +84,17 @@ static int apply_token(list_t *cur, glob_ctx_t *gctx)
     return handle_glob(cur, tok, gctx);
 }
 
-int apply_globbing(list_t **tokens, ms_shell_context_t *ctx)
+int apply_globbing(list_t **tokens,
+    ms_shell_context_t *ctx)
 {
     list_t *cur = *tokens;
     list_t *next;
     glob_ctx_t gctx;
 
+    if (!cur)
+        return 0;
+    if (my_strcmp("if", ((ms_token_t *) (*tokens)->data)->word_value) == 0)
+        return 0;
     init_gctx(&gctx, tokens, ctx);
     while (cur) {
         next = cur->next;

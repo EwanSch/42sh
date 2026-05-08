@@ -76,6 +76,15 @@ int run_command(char **args, ms_shell_context_t *context)
     return run_other(args, context);
 }
 
+static int handle_tokens(list_t *tokens, ms_shell_context_t *context)
+{
+    if (apply_globbing(&tokens, context)) {
+        ll_free_full(tokens, (void (*)(void *))free_token);
+        return 1;
+    }
+    return ms_runner(tokens, context);
+}
+
 int process_line(ms_shell_context_t *context, char **line)
 {
     list_t *tokens;
@@ -92,9 +101,9 @@ int process_line(ms_shell_context_t *context, char **line)
         return 1;
     tokens = cut_words(expanded, context);
     free(expanded);
-    if (!tokens || apply_globbing(&tokens, context))
+    if (!tokens)
         return 1;
-    return ms_runner(tokens, context);
+    return handle_tokens(tokens, context);
 }
 
 static void env_to_var(char *env_name, char *var_name,

@@ -54,4 +54,5 @@ char **list_to_array(list_t *lst);
 void ll_remove_node(list_t **list, list_t *node);
 void ll_insert_after(list_t *node, void *data);
 void ll_insert_before(list_t **list, list_t *node, void *data);
+void ll_free_full(list_t *list, void (*free_data)(void *));
 #endif
