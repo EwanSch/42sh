@@ -15,7 +15,20 @@
 #include "shell.h"
 #include "minishell2.h"
 #include "benjalib.h"
+#include "ms_builtins.h"
 #include "ms_grammar.h"
+
+static int run_command(char **args, ms_shell_context_t *context)
+{
+    if (!args || !args[0])
+        return 0;
+    for (int i = 0; ms_builtins_list[i].name; i++) {
+        if (my_strcmp(ms_builtins_list[i].name, args[0]) == 0) {
+            return ms_builtins_list[i].callback(context, args + 1);
+        }
+    }
+    return run_other(args, context);
+}
 
 static int trigger_command(char **args, ms_shell_context_t *context,
     int in, int out)

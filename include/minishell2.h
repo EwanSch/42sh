@@ -191,7 +191,6 @@ bool verify_pipeline(ms_syntax_tree_t *pipeline);
 
 // Running
 int ms_runner(list_t *tokens, ms_shell_context_t *context);
-int run_command(char **args, ms_shell_context_t *context);
 int visit_simple_command(ms_syntax_tree_t *node, ms_shell_context_t *context,
     int fdin, int fdout);
 int ms_prompt(ms_shell_context_t *context, char *type);
