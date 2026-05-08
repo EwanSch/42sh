@@ -91,6 +91,10 @@ int apply_globbing(list_t **tokens,
     list_t *next;
     glob_ctx_t gctx;
 
+    if (!cur)
+        return 0;
+    if (my_strcmp("if", ((ms_token_t *) (*tokens)->data)->word_value))
+        return 0;
     init_gctx(&gctx, tokens, ctx);
     while (cur) {
         next = cur->next;
