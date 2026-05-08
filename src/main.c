@@ -27,6 +27,19 @@
 #include "ms_grammar.h"
 #include "line_editor.h"
 
+void free_alias(alias_t *alias)
+{
+    alias_t *temp = NULL;
+
+    while (alias) {
+        temp = alias->next;
+        free(alias->alias);
+        free(alias->name);
+        free(alias);
+        alias = temp;
+    }
+}
+
 void ms_teardown(ms_shell_context_t *context)
 {
     ms_env_entry_t *entry;
@@ -43,23 +56,12 @@ void ms_teardown(ms_shell_context_t *context)
         safe_free(&entry->value);
         safe_free(&entry);
     }
+    free_alias(context->alias);
     safe_free(&context->last_working_dir);
     safe_free(&context->line_buffer);
     if (context->reader)
         lr_close(context->reader);
     context->reader = NULL;
-}
-
-int run_command(char **args, ms_shell_context_t *context)
-{
-    if (!args || !args[0])
-        return 0;
-    for (int i = 0; ms_builtins_list[i].name; i++) {
-        if (my_strcmp(ms_builtins_list[i].name, args[0]) == 0) {
-            return ms_builtins_list[i].callback(context, args + 1);
-        }
-    }
-    return run_other(args, context);
 }
 
 static int handle_tokens(list_t *tokens, ms_shell_context_t *context)

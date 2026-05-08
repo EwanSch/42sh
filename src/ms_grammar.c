@@ -67,9 +67,13 @@
 // the grammar ruleset will trigger an error
 // and prevent the execution of the input.
 
+#include <string.h>
+
 #include "minishell2.h"
 #include "benjalib.h"
 #include "ms_grammar.h"
+
+#include "shell.h"
 
 ms_syntax_tree_t *ast_build(ms_syntax_tree_t *parent, ms_tree_type_t type)
 {
@@ -103,8 +107,12 @@ static void push_word(ms_grammar_parser_t *grammar, ms_syntax_tree_t *parent)
     if (!word_node)
         return;
     tok = gr_consume(grammar);
-    if (tok && tok->word_value)
-        ll_push(&word_node->children, tok->word_value);
+    if (tok) {
+        if (tok->word_value)
+            ll_push(&word_node->children, tok->word_value);
+        else
+            ll_push(&word_node->children, strdup(ms_token_to_str(tok)));
+    }
     safe_free(&tok);
 }
 
@@ -134,9 +142,7 @@ static bool parse_command(ms_grammar_parser_t *grammar,
 {
     bool first_word = false;
 
-    if (gr_match(grammar, MS_TOKEN_LEFT_BRACKET, true)) {
-        if ((*root))
-            return false;
+    if (!(*root) && gr_match(grammar, MS_TOKEN_LEFT_BRACKET, true)) {
         (*root) = ast_build(parent, MS_TREE_SEQUENCE);
         if (!(*root))
             return false;
@@ -146,10 +152,7 @@ static bool parse_command(ms_grammar_parser_t *grammar,
         first_word = true;
         (*root) = ast_build(parent, MS_TREE_COMMAND);
     }
-    if (!(*root))
-        return false;
-    if (first_word)
-        while (is_alias(grammar));
+    search_alias(root, first_word, grammar);
     push_word(grammar, (*root));
     return true;
 }
@@ -162,7 +165,7 @@ static bool parse_simple_command(ms_grammar_parser_t *grammar,
 
     if (gr_at_end(grammar))
         return true;
-    while (all_good) {
+    while (1) {
         if (parse_redirection(grammar, parent))
             continue;
         if (!gr_testfor(grammar, MS_TOKEN_WORD) &&

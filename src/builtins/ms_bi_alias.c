@@ -11,29 +11,20 @@
 #include "minishell2.h"
 #include "ms_builtins.h"
 
-int is_space(char *name)
-{
-    for (int i = 0; name[i]; i++) {
-        if (name[i] == ' ')
-            return 1;
-    }
-    return 0;
-}
-
-void dump_all_alias(alias_t *alias)
+static void dump_all_alias(alias_t *alias)
 {
     alias_t *buf = alias;
     int space = 0;
 
     while (buf) {
-        space = is_space(buf->name);
+        space = strchr(buf->name, ' ') != NULL;
         printf("%s \t%s%s%s\n", buf->alias,
             !space ? "" : "(", buf->name, !space ? "" : ")");
         buf = buf->next;
     }
 }
 
-void show_alias(char *args, alias_t *alias)
+static void show_alias(char *args, alias_t *alias)
 {
     alias_t *buf = alias;
 
@@ -44,7 +35,21 @@ void show_alias(char *args, alias_t *alias)
     }
 }
 
-int insert_alias(char **args, alias_t **alias)
+static int alias_exist(alias_t **alias, char **args,
+    alias_t *new_node, char *str)
+{
+    for (alias_t *buf = *alias; buf; buf = buf->next)
+        if (!strcmp(args[0], buf->alias)) {
+            free(buf->name);
+            free(new_node->alias);
+            free(new_node);
+            buf->name = str;
+            return 1;
+        }
+    return 0;
+}
+
+static int insert_alias(char **args, alias_t **alias)
 {
     alias_t *new_node = malloc(sizeof(alias_t));
     list_t *list = {0};
@@ -56,7 +61,10 @@ int insert_alias(char **args, alias_t **alias)
     for (int i = 1; args[i]; i++) {
         ll_push(&list, args[i]);
     }
-    str = ll_to_str(&list, " ");
+    str = ll_to_str(&list, " ", NULL);
+    ll_free(list);
+    if (alias_exist(alias, args, new_node, str))
+        return 0;
     new_node->name = str;
     new_node->next = *alias;
     *alias = new_node;

@@ -11,6 +11,7 @@
     #define SHELL_H
 
     #include "minishell1.h"
+    #include "ms_grammar.h"
 
     #define MS_VAR_TERM "term"
     #define MS_VAR_CWD "cwd"

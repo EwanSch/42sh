@@ -20,6 +20,7 @@ SRC_FILENAMES = \
 	ms_command_parser.c \
 	ms_errors.c \
 	ms_strutils.c \
+	ms_alias_util.c \
 	ms_grammar.c \
 	ms_grammar_tools.c \
 	ms_runner.c \
@@ -52,6 +53,7 @@ SRC_FILENAMES = \
 	builtins/ms_bi_alias.c	\
 	builtins/ms_bi_unalias.c	\
 	builtins/ms_bi_exit.c	\
+	builtins/ms_bi_if.c	\
 	builtins/ms_bi_which.c	\
 	builtins/ms_bi_where.c	\
 	builtins/ms_bi_colon.c	\
@@ -68,8 +70,16 @@ SRC_FILENAMES = \
 	ms_fs_glob_pattern.c	\
 	ms_fs_glob_utils.c	\
 	ll_to_str.c	\
+	ll_dump.c	\
 	my_recalloc.c	\
-	ms_mismatch.c
+	ms_mismatch.c	\
+	ms_expression.c	\
+	ms_cut_args.c	\
+	ms_operator.c	\
+	ms_expre_math.c	\
+	array_to_str.c	\
+	ll_free_linked.c	\
+	ms_calculate_val.c
 
 HEADERS = minishell1.h minishell2.h benjalib.h var_substitution.h \
 	ms_grammar.h ms_builtins.h globbing.h shell.h

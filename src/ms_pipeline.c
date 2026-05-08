@@ -26,27 +26,41 @@ static void complete_token(list_t **head, list_t *temp)
     }
 }
 
-bool is_alias(ms_grammar_parser_t *grammar)
+static void substitute_alias(alias_t *alias, ms_grammar_parser_t *grammar,
+    char **exist)
 {
-    alias_t **buf = &grammar->ctx_ref->alias;
     list_t **head = &grammar->tokens;
     list_t *temp;
+
+    if (!*exist)
+        *exist = alias->alias;
+    free_token(gr_consume(grammar));
+    temp = *head;
+    *head = cut_words(alias->name, grammar->ctx_ref);
+    complete_token(head, temp);
+}
+
+bool is_alias(ms_grammar_parser_t *grammar, char **exist, bool *err)
+{
+    alias_t **buf = &grammar->ctx_ref->alias;
     ms_token_t *tok = NULL;
 
     while (*buf) {
         tok = grammar->tokens->data;
-        if (my_strcmp(tok->type == MS_TOKEN_WORD ?
-                tok->word_value : NULL, (*buf)->alias)) {
+        if (tok->type != MS_TOKEN_WORD ||
+            my_strcmp(tok->word_value, (*buf)->alias) != 0) {
             buf = &(*buf)->next;
             continue;
         }
-        gr_consume(grammar);
-        temp = *head;
-        *head = cut_words((*buf)->name, grammar->ctx_ref);
-        complete_token(head, temp);
-        return 1;
+        if (*exist == (*buf)->alias) {
+            dprintf(2, "Alias loop.\n");
+            *err = true;
+            return false;
+        }
+        substitute_alias(*buf, grammar, exist);
+        return true;
     }
-    return 0;
+    return false;
 }
 
 static pid_t forked_simple_command(ms_syntax_tree_t *node,
