@@ -49,3 +49,16 @@ void ll_insert_after(list_t *node, void *data)
     new->next = node->next;
     node->next = new;
 }
+
+void ll_free_full(list_t *list, void (*free_data)(void *))
+{
+    list_t *tmp;
+
+    while (list) {
+        tmp = list;
+        list = list->next;
+        if (free_data)
+            free_data(tmp->data);
+        free(tmp);
+    }
+}
