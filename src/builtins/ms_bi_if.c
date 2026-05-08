@@ -25,10 +25,9 @@ int ms_bi_if(ms_shell_context_t *ctx, char **args)
     int res = 0;
 
     nbr = ms_expression(args, &cmd, &err);
-    printf("cmd: %s\n", cmd);
     if (err == false) {
         if (!cmd || *cmd == '\0') {
-            dprintf(1, "if: Empty if.\n");
+            dprintf(2, "if: Empty if.\n");
         }
         if (cmd && nbr > 0) {
             res = process_line(ctx, &cmd);

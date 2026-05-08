@@ -121,11 +121,11 @@ int check_valid_nbr(list_t ***buf)
 int impossible_calc(int ope, long val2)
 {
     if (ope == 4 && !val2) {
-        dprintf(1, "Division by 0.\n");
+        dprintf(2, "Division by 0.\n");
         return 42;
     }
     if (ope == 5 && !val2) {
-        dprintf(1, "Mod by 0.\n");
+        dprintf(2, "Mod by 0.\n");
         return 42;
     }
     return 0;

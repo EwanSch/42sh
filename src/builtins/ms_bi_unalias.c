@@ -35,7 +35,7 @@ int ms_bi_unalias(ms_shell_context_t *context, char **argv)
 
     for (char **arg = argv; arg[argc]; argc++);
     if (argc == 0) {
-        my_dprintf(1, "unalias: Too few arguments.\n");
+        my_dprintf(2, "unalias: Too few arguments.\n");
     }
     remove_alias(argv, &context->alias);
     return 0;

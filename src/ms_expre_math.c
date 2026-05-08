@@ -76,7 +76,7 @@ static int do_math(ms_expression_t *expre, int(get_opera)(char *))
             case 2:
                 return 0;
             case 84:
-                dprintf(1, "if: Expression Syntax.\n");
+                dprintf(2, "if: Expression Syntax.\n");
             case 42:
                 return 84;
         }
@@ -103,7 +103,7 @@ int do_expre(ms_expression_t *expre)
     if (do_math(expre, get_ope))
         return 84;
     if (check_depth(expre)) {
-        dprintf(1, "if: Expression Syntax.\n");
+        dprintf(2, "if: Expression Syntax.\n");
         return 84;
     }
     return 0;
